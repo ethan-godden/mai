@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+config.local.toml
+
+# Runtime data: never commit models, caches, indexes or research runs
+models/
+data/
+runs/
+.cache/
+*.gguf
+*.safetensors
+*.lance/
+*.sqlite
+*.db
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+.claude/settings.local.json
