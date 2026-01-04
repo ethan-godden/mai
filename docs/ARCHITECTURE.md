@@ -1,0 +1,155 @@
+# Architecture
+
+Last updated: 2026-11-23. This describes the *planned* design. Sections are
+updated as each milestone lands; anything not yet built is marked (planned).
+
+## 1. Overview
+
+Mai is a pipeline of small, replaceable stages. A local LLM is used only where
+language understanding is needed; retrieval and checking are done by dedicated
+ML models.
+
+```
+                         ┌──────────────────────────────┐
+   CLI / MCP / Web UI ──▶│        Orchestrator          │──▶ runs/<id>/ (trace)
+                         └──────────────┬───────────────┘
+                                        │
+     ┌──────────┬──────────┬────────────┼───────────┬────────────┬──────────┐
+     ▼          ▼          ▼            ▼           ▼            ▼          ▼
+  Planner    Search     Fetch &     Retrieval    Reader      Writer     Verifier
+  (LLM)     providers   extract    (embed, BM25, (LLM,       (LLM)     (entailment
+                                    rerank,      notes)                  model)
+                                    cluster)
+     │          │          │            │           │            │          │
+     └──────────┴──────────┴─────┬──────┴───────────┴────────────┴──────────┘
+                                 ▼
+         Local services: inference server (OpenAI-compatible), SearXNG,
+         vector store, page cache
+```
+
+## 2. Pipelines
+
+### Quick mode (M3)
+
+1. **Rewrite**: fast model turns the question into 2 to 4 search queries.
+2. **Search**: queries run in parallel across providers; results are merged.
+3. **Fetch**: top results are downloaded and extracted to Markdown.
+4. **Retrieve**: best passages are selected (BM25 in M3, full ML stack in M4).
+5. **Answer**: main model writes a short answer with numbered citations.
+
+### Deep mode (M5, M6)
+
+1. **Plan**: main model produces sub-questions and a report outline.
+2. **Research loop**, per sub-question, bounded by a budget:
+   search → fetch → index → retrieve → **read** (fast model writes structured
+   notes: claim, verbatim quote, source id).
+3. **Gap analysis**: main model reviews notes against the outline and either
+   issues follow-up queries or declares the research sufficient.
+4. **Synthesise**: main model writes each section from the notes only. It
+   never sees raw pages and may only cite note ids.
+5. **Verify**: each claim is checked against its cited quote by an entailment
+   model; unsupported claims are repaired or removed.
+6. **Render**: Markdown report, source list, verification summary.
+
+Writing from notes rather than raw pages keeps the context small, makes every
+sentence traceable to a quote, and gives the verifier something precise to
+check.
+
+## 3. Components
+
+| Component | Responsibility | Main dependencies |
+|---|---|---|
+| `mai.cli` | Commands: `ask`, `research`, `search`, `fetch`, `eval`, `doctor` | typer, rich |
+| `mai.config` | Typed settings from `config.toml` and environment | pydantic-settings |
+| `mai.llm` | OpenAI-compatible client, structured output, model tiers, accounting | httpx / openai SDK, pydantic |
+| `mai.search` | Provider interface; SearXNG, arXiv, Wikipedia, Semantic Scholar | httpx |
+| `mai.fetch` | Concurrent fetching, cache, robots, rate limits, browser fallback | httpx, playwright |
+| `mai.extract` | HTML and PDF to Markdown plus metadata | trafilatura, PDF library |
+| `mai.retrieval` | Chunking, embeddings, hybrid search, reranking, dedup, diversity | sentence-transformers / MLX, LanceDB, scikit-learn |
+| `mai.pipeline` | Quick and deep orchestration, budgets, resumability | asyncio |
+| `mai.verify` | Claim splitting and entailment checking | transformers |
+| `mai.report` | Rendering, citations, export | jinja2 |
+| `mai.runs` | Run records and trace storage | sqlite / JSON files |
+| `mai.eval` | Evaluation set, metrics, DSPy optimisation | dspy |
+| `mai.mcp` | MCP server exposing research tools | mcp SDK |
+| `mai.web` | Local web UI | FastAPI |
+
+Every stage that touches a model, the network or the disk sits behind a small
+interface (a `Protocol`), so tests can substitute fakes and implementations
+can be swapped without touching the pipeline.
+
+## 4. Data model
+
+```
+Run          id, question, mode, config snapshot, started, finished, status
+Query        run_id, text, provider, sub_question
+Source       id, url, title, author, published, fetched_at, content_hash, quality
+Chunk        source_id, position, text, embedding
+Note         id, run_id, sub_question, claim, quote, source_id, chunk_position
+Claim        report sentence, cited note ids, verdict, score
+Report       run_id, markdown, sources, verification summary
+```
+
+A run is stored as a directory, `runs/<timestamp>-<slug>/`, containing
+`run.json`, `notes.jsonl`, `report.md` and `trace.jsonl` (every model call
+with prompt, output, timing and token counts). Runs are plain files so they
+can be read, diffed and used as evaluation or fine-tuning data.
+
+## 5. Models and memory
+
+Three LLM tiers plus three small task models, all loaded locally. Details and
+the memory budget are in [MODELS.md](MODELS.md).
+
+| Role | Used for | Size class |
+|---|---|---|
+| Fast | Query rewriting, note-taking, claim splitting | small |
+| Main | Planning, gap analysis, synthesis | medium |
+| Heavy (optional) | Final synthesis of long reports | large |
+| Embedder | Dense retrieval | tiny |
+| Reranker | Passage reranking | tiny |
+| Verifier | Claim / evidence entailment | tiny |
+
+## 6. Local services
+
+| Service | Purpose | Default address |
+|---|---|---|
+| Inference server | Serves LLMs over an OpenAI-compatible API | `http://localhost:11434/v1` (Ollama) or `:8080/v1` (mlx-lm) |
+| SearXNG | Metasearch over public engines | `http://localhost:8888` |
+
+Both are optional at import time: `mai doctor` reports what is missing and
+how to start it.
+
+## 7. Repository layout (planned)
+
+```
+Mai/
+├── README.md
+├── CLAUDE.md
+├── pyproject.toml
+├── config.example.toml
+├── docs/
+│   ├── PLAN.md  ARCHITECTURE.md  ML.md  MODELS.md  WORKFLOW.md
+│   ├── decisions/          ADRs
+│   └── guide/              setup, usage, search, evaluation, mcp, web-ui
+├── src/mai/                packages listed in section 3
+├── prompts/                prompt templates, versioned
+├── tests/                  unit (offline) and integration (marked)
+├── evals/                  question sets, metrics, results history
+└── scripts/                bake-off, maintenance
+```
+
+Git-ignored at runtime: `models/`, `data/` (cache, vector store), `runs/`.
+
+## 8. Cross-cutting concerns
+
+- **Privacy**: questions go to search engines as queries; page fetches go to
+  the sites themselves. Nothing else leaves the machine. No telemetry.
+- **Politeness**: robots.txt is respected, requests are rate-limited per host
+  and identified with a generic user agent.
+- **Untrusted content**: fetched pages are data, never instructions. Page text
+  is delimited in prompts, and the pipeline's fixed structure means a page
+  cannot trigger actions.
+- **Budgets**: every run has limits on iterations, sources, tokens and wall
+  time, set in config and overridable per command.
+- **Failure handling**: a failed fetch or extraction is logged and skipped;
+  the report lists sources that could not be read.
