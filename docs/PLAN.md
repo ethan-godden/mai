@@ -131,11 +131,13 @@ Docs: `docs/guide/usage.md`, ARCHITECTURE.md (quick pipeline).
 
 Purpose: make the model read the *right* passages. See [ML.md](ML.md).
 
-1. Chunking and local embedding model; vector store.
-2. Hybrid retrieval (BM25 + dense) with reciprocal rank fusion.
-3. Cross-encoder reranker.
-4. Near-duplicate removal and diversity selection (clustering / MMR).
-5. Source quality signals (domain type, recency, corroboration count).
+1. Seed evaluation set: about 15 questions with labelled relevant passages,
+   and a retrieval-metrics script (grown into the full harness in M7).
+2. Chunking and local embedding model; vector store.
+3. Hybrid retrieval (BM25 + dense) with reciprocal rank fusion.
+4. Cross-encoder reranker.
+5. Near-duplicate removal and diversity selection (clustering / MMR).
+6. Source quality signals (domain type, recency, corroboration count).
 
 Exit criteria: retrieval metrics on the evaluation seed set beat the M3 BM25
 baseline; results recorded.
