@@ -1,0 +1,40 @@
+# Mai configuration.
+#
+# Copy to config.toml (git-ignored) and edit. Every value shown is the default
+# unless marked otherwise. Any value can also be set from the environment:
+#   MAI_LLM__BASE_URL=http://localhost:8080/v1
+#   MAI_LLM__MAIN__MODEL=some-model
+# Environment variables take priority over this file.
+
+[llm]
+# OpenAI-compatible endpoint of the local inference server.
+#   Ollama:        http://localhost:11434/v1
+#   mlx-lm server: http://localhost:8080/v1
+base_url = "http://localhost:11434/v1"
+api_key = "local"      # ignored by local servers
+timeout_s = 600        # per request, generous because local generation is slow
+max_retries = 2        # on connection errors and 429/5xx responses
+
+# Model tiers. See docs/MODELS.md for what each is used for and which models
+# were chosen. "model" has no default and must be set for fast and main.
+
+[llm.fast]             # query rewriting, note extraction, claim splitting
+model = ""             # example only: "qwen3.5:9b"
+max_tokens = 2048
+temperature = 0.2
+
+[llm.main]             # planning, gap analysis, synthesis
+model = ""
+max_tokens = 2048
+temperature = 0.2
+
+# Optional. If omitted, the main model is used for heavy work.
+# A tier may live on a different server by setting its own base_url.
+# [llm.heavy]
+# model = ""
+# base_url = "http://localhost:8080/v1"
+# max_tokens = 8192
+
+[paths]
+data_dir = "data"      # caches and indexes
+runs_dir = "runs"      # one directory per research run
