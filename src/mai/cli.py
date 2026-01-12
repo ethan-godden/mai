@@ -11,8 +11,9 @@ from rich.markup import escape
 from rich.table import Table
 
 from mai import __version__
-from mai.config import Settings, load_settings
+from mai.config import Settings, Tier, load_settings
 from mai.doctor import run_checks
+from mai.llm import Completion, LLMError, OpenAICompatClient
 
 app = typer.Typer(
     name="mai",
@@ -27,6 +28,9 @@ ConfigOption = Annotated[
     Path | None,
     typer.Option("--config", "-c", help="Path to a config.toml (default: auto-discover)."),
 ]
+
+
+ASK_SYSTEM_PROMPT = "You are a careful research assistant. Answer accurately and concisely."
 
 
 def _print_version(value: bool) -> None:
@@ -73,3 +77,39 @@ def doctor(config: ConfigOption = None) -> None:
         console.print(f"[red]{failures} check(s) failed.[/red]")
         raise typer.Exit(code=1)
     console.print("[green]Ready.[/green]")
+
+
+@app.command()
+def ask(
+    question: Annotated[str, typer.Argument(help="The question to answer.")],
+    tier: Annotated[Tier, typer.Option(help="Model tier to use.")] = "main",
+    config: ConfigOption = None,
+) -> None:
+    """Answer a question with a local model.
+
+    Until milestone M3 this is a plain completion: no web search, no citations.
+    """
+    settings = _load(config)
+
+    async def run() -> Completion:
+        async with OpenAICompatClient(settings.llm) as llm:
+            return await llm.complete(
+                tier,
+                [
+                    {"role": "system", "content": ASK_SYSTEM_PROMPT},
+                    {"role": "user", "content": question},
+                ],
+                on_text=lambda text: console.print(text, end="", markup=False, highlight=False),
+            )
+
+    try:
+        completion = asyncio.run(run())
+    except LLMError as error:
+        err_console.print(f"[red]Model call failed:[/red] {escape(str(error))}")
+        raise typer.Exit(code=2) from error
+
+    speed = f"{completion.tokens_per_s:.0f} tok/s" if completion.tokens_per_s else "speed n/a"
+    console.print(
+        f"\n[dim]{escape(completion.model)} · {completion.completion_tokens or '?'} tokens · "
+        f"{completion.duration_s:.1f}s · {speed}[/dim]"
+    )
