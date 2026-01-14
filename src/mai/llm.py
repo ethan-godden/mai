@@ -34,6 +34,9 @@ TextCallback = Callable[[str], None]
 
 RETRYABLE_STATUS = frozenset({408, 429, 500, 502, 503, 504})
 STRUCTURED_ATTEMPTS = 2
+CONSTRAINT_UNSUPPORTED_STATUS = frozenset({400, 422, 501})
+"""Statuses with which servers reject ``response_format`` they cannot honour.
+Seen in practice: Ollama's MLX runner answers 501 "structured output is unavailable"."""
 
 _THINK_BLOCK = re.compile(r"<think>.*?</think>", re.DOTALL)
 _CODE_FENCE = re.compile(r"```(?:json)?\s*(.*?)```", re.DOTALL)
@@ -93,6 +96,8 @@ class StructuredResult[T: BaseModel]:
     completion: Completion
     attempts: int
     """1 if the first reply validated, 2 if it needed the repair turn."""
+    constrained: bool
+    """True if the server enforced the schema; False if only the prompt asked for it."""
 
 
 @dataclass
@@ -156,6 +161,19 @@ def extract_json(text: str) -> str:
     return text[start : end + 1] if 0 <= start < end else text
 
 
+def _with_schema_instruction(messages: Sequence[Message], schema: type[BaseModel]) -> list[Message]:
+    instruction = (
+        "Reply with only a JSON object that matches this JSON schema, with no other text:\n"
+        + json.dumps(schema.model_json_schema())
+    )
+    conversation = [dict(message) for message in messages]
+    if conversation and conversation[-1]["role"] == "user":
+        conversation[-1]["content"] += "\n\n" + instruction
+    else:
+        conversation.append({"role": "user", "content": instruction})
+    return conversation
+
+
 class OpenAICompatClient:
     """``LLM`` implementation for Ollama, mlx-lm server, LM Studio, llama.cpp and similar."""
 
@@ -174,6 +192,8 @@ class OpenAICompatClient:
             transport=transport, timeout=httpx.Timeout(settings.timeout_s, connect=10.0)
         )
         self.usage = UsageLedger()
+        self._unconstrained: set[tuple[str, str]] = set()
+        """Backends (endpoint, model) found not to support schema-constrained output."""
 
     async def __aenter__(self) -> OpenAICompatClient:
         return self
@@ -204,6 +224,8 @@ class OpenAICompatClient:
         max_tokens: int | None = None,
         temperature: float | None = None,
     ) -> StructuredResult[T]:
+        tier_config = self._settings.tier(tier)
+        backend = (tier_config.base_url, tier_config.model)
         response_format = {
             "type": "json_schema",
             "json_schema": {
@@ -212,18 +234,30 @@ class OpenAICompatClient:
                 "strict": True,
             },
         }
-        conversation = list(messages)
+        # The schema is always stated in the prompt as well: constrained decoding
+        # guarantees the shape, but the model fills it better when it can read it,
+        # and some backends cannot constrain at all.
+        conversation = _with_schema_instruction(messages, schema)
         completion: Completion | None = None
         reason = ""
-        for attempt in range(1, STRUCTURED_ATTEMPTS + 1):
-            completion = await self._call(
-                tier,
-                conversation,
-                max_tokens,
-                temperature,
-                on_text=None,
-                extra={"response_format": response_format},
-            )
+        attempt = 1
+        while attempt <= STRUCTURED_ATTEMPTS:
+            constrained = backend not in self._unconstrained
+            try:
+                completion = await self._call(
+                    tier,
+                    conversation,
+                    max_tokens,
+                    temperature,
+                    on_text=None,
+                    extra={"response_format": response_format} if constrained else {},
+                )
+            except LLMResponseError as error:
+                if constrained and error.status in CONSTRAINT_UNSUPPORTED_STATUS:
+                    # Remember and retry this attempt relying on the prompt alone.
+                    self._unconstrained.add(backend)
+                    continue
+                raise
             try:
                 value = schema.model_validate_json(extract_json(completion.text))
             except ValidationError as error:
@@ -236,8 +270,11 @@ class OpenAICompatClient:
                         f"{reason}\nReply again with only the corrected JSON object.",
                     },
                 ]
+                attempt += 1
             else:
-                return StructuredResult(value=value, completion=completion, attempts=attempt)
+                return StructuredResult(
+                    value=value, completion=completion, attempts=attempt, constrained=constrained
+                )
         assert completion is not None
         raise StructuredOutputError(schema.__name__, completion.text, reason)
 
@@ -262,6 +299,8 @@ class OpenAICompatClient:
             "stream_options": {"include_usage": True},
             **extra,
         }
+        if tier.reasoning_effort:
+            payload["reasoning_effort"] = tier.reasoning_effort
         emitted = False
 
         def forward(text: str) -> None:

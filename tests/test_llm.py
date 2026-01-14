@@ -163,9 +163,43 @@ async def test_structured_parses_and_sends_schema():
     result = await llm.structured("main", [{"role": "user", "content": "q"}], City)
 
     assert result.value == City(name="Oslo", population=700000)
-    assert result.attempts == 1
+    assert result.attempts == 1 and result.constrained
+    assert server.body()["messages"] == [
+        {"role": "user", "content": server.body()["messages"][0]["content"]}
+    ]  # the schema instruction is merged into the user turn, not added as a second one
     schema = server.body()["response_format"]["json_schema"]
     assert schema["name"] == "City" and "population" in schema["schema"]["properties"]
+
+
+async def test_structured_falls_back_when_server_cannot_constrain():
+    unavailable = httpx.Response(501, text="structured output is unavailable")
+    server = Server(
+        unavailable, ok('{"name": "Oslo", "population": 2}'), ok('{"name": "X", "population": 3}')
+    )
+    llm, sleeps = client(server)
+
+    first = await llm.structured("main", [{"role": "user", "content": "q"}], City)
+    assert first.value.population == 2
+    assert (first.attempts, first.constrained) == (1, False)
+    assert "response_format" in server.body(0) and "response_format" not in server.body(1)
+    assert "JSON schema" in server.body(1)["messages"][-1]["content"]
+    assert sleeps == []  # a 501 is an answer, not a transient failure
+
+    await llm.structured("main", [{"role": "user", "content": "q"}], City)
+    assert len(server.requests) == 3  # the backend's limitation is remembered
+    assert "response_format" not in server.body(2)
+
+
+async def test_reasoning_effort_is_passed_through_when_set():
+    server = Server(ok("x"), ok("y"))
+    config = LLMSettings(
+        main=TierSettings(model="m"), fast=TierSettings(model="f", reasoning_effort="none")
+    )
+    llm = OpenAICompatClient(config, transport=httpx.MockTransport(server))
+    await llm.complete("fast", [])
+    await llm.complete("main", [])
+    assert server.body(0)["reasoning_effort"] == "none"
+    assert "reasoning_effort" not in server.body(1)
 
 
 async def test_structured_repairs_an_invalid_first_reply():

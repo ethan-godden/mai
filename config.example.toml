@@ -22,6 +22,7 @@ max_retries = 2        # on connection errors and 429/5xx responses
 model = ""             # example only: "qwen3.5:9b"
 max_tokens = 2048
 temperature = 0.2
+# reasoning_effort = "none"   # optional: stop a thinking model from reasoning first
 
 [llm.main]             # planning, gap analysis, synthesis
 model = ""

@@ -41,6 +41,9 @@ class TierSettings(_Section):
     base_url: str | None = None
     max_tokens: int = 2048
     temperature: float = 0.2
+    reasoning_effort: str | None = None
+    """Passed through as the OpenAI ``reasoning_effort`` parameter when set
+    (for example "none" or "low"), for models that think before answering."""
 
 
 @dataclass(frozen=True)
@@ -53,6 +56,7 @@ class ResolvedTier:
     api_key: str
     max_tokens: int
     temperature: float
+    reasoning_effort: str | None
 
 
 class LLMSettings(_Section):
@@ -78,6 +82,7 @@ class LLMSettings(_Section):
             api_key=self.api_key,
             max_tokens=chosen.max_tokens,
             temperature=chosen.temperature,
+            reasoning_effort=chosen.reasoning_effort,
         )
 
 
