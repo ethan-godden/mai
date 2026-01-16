@@ -7,8 +7,25 @@ runs every model on this machine, using open-weight models from Hugging Face.
 The goal is to move research work off paid, token-metered services such as
 Claude and onto local hardware, without giving up cited, checkable answers.
 
-**Status:** planning complete, implementation not started. See the
-[roadmap](docs/PLAN.md) for what comes next.
+**Status:** milestone M1 (foundations) in progress. Mai can check its
+environment and answer a question with a local model. Web search and citations
+arrive in M2 and M3. See the [roadmap](docs/PLAN.md).
+
+## Quick start
+
+Full instructions: [docs/guide/setup.md](docs/guide/setup.md).
+
+```bash
+uv sync
+cp config.example.toml config.toml   # then set the model names
+uv run mai doctor
+uv run mai ask "What is retrieval-augmented generation?"
+```
+
+| Command | What it does |
+|---|---|
+| `mai doctor` | Checks machine, config, model server and models |
+| `mai ask "..."` | Answers with a local model (no search or citations yet) |
 
 ## Target machine
 
@@ -41,6 +58,7 @@ updates the docs in the same commit series as the code.
 
 | Document | What it covers |
 |---|---|
+| [docs/guide/setup.md](docs/guide/setup.md) | Installing, configuring and troubleshooting |
 | [docs/PLAN.md](docs/PLAN.md) | Goals, scope, milestones, exit criteria, risks |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components, data flow, data model, repository layout |
 | [docs/ML.md](docs/ML.md) | Where ML frameworks are used to improve research quality |
