@@ -1,0 +1,14 @@
+[
+  {"id": "g1", "passages": ["p1", "p6", "p7"], "question": "How many turbines does the Veldrin Tidal Array have?", "gold": "p1", "keywords": ["48"]},
+  {"id": "g2", "passages": ["p4", "p2", "p8"], "question": "How many round trips does a Lumen Sync version 3 handshake take?", "gold": "p2", "keywords": ["2 round|two round"]},
+  {"id": "g3", "passages": ["p5", "p3", "p6"], "question": "By how much did bark beetle infestation rise in Brannoch Forest after the dry summers?", "gold": "p3", "keywords": ["37"]},
+  {"id": "g4", "passages": ["p8", "p1", "p4"], "question": "What was Quillon Robotics' revenue in 2023?", "gold": "p4", "keywords": ["480"]},
+  {"id": "g5", "passages": ["p3", "p7", "p5"], "question": "Which agency approved Zentravir, and when?", "gold": "p5", "keywords": ["Meridian", "2023"]},
+  {"id": "g6", "passages": ["p7", "p6", "p2"], "question": "Which river feeds Lake Arvenne?", "gold": "p6", "keywords": ["Solde"]},
+  {"id": "g7", "passages": ["p1", "p8", "p7"], "question": "Who designed Halden Bridge and how long is its main span?", "gold": "p7", "keywords": ["Voss", "940"]},
+  {"id": "g8", "passages": ["p2", "p8", "p3"], "question": "How many cores does the Corvid-9 processor have?", "gold": "p8", "keywords": ["24"]},
+  {"id": "g9", "passages": ["p4", "p1", "p6"], "question": "Who is the chief financial officer of Quillon Robotics?", "gold": null, "keywords": []},
+  {"id": "g10", "passages": ["p2", "p3", "p7"], "question": "How many participants were enrolled in the Zentravir phase 3 trial?", "gold": null, "keywords": []},
+  {"id": "g11", "passages": ["p8", "p5", "p1"], "question": "What is the retail price of the Corvid-9 processor?", "gold": null, "keywords": []},
+  {"id": "g12", "passages": ["p6", "p7", "p4"], "question": "In what year was fishing for silverfin char banned in Lake Arvenne?", "gold": null, "keywords": []}
+]

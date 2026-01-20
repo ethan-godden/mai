@@ -1,0 +1,10 @@
+[
+  {"id": "r1", "question": "Is it worth replacing a gas boiler with a heat pump in a cold climate?"},
+  {"id": "r2", "question": "What do we actually know about the causes of the decline in insect populations?"},
+  {"id": "r3", "question": "How are small businesses using large language models, and is it paying off?"},
+  {"id": "r4", "question": "What happened to the plan to build a high-speed rail line in California?"},
+  {"id": "r5", "question": "Which is better for a beginner learning to program in 2026, Python or JavaScript?"},
+  {"id": "r6", "question": "How reliable are sleep trackers compared with a sleep lab?"},
+  {"id": "r7", "question": "What are the arguments for and against a universal basic income, and what do pilot studies show?"},
+  {"id": "r8", "question": "How does the Rust borrow checker work and why do people find it difficult?"}
+]

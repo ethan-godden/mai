@@ -1,0 +1,90 @@
+[
+  {
+    "id": "p1",
+    "title": "Veldrin Tidal Array",
+    "text": "The Veldrin Tidal Array was commissioned in 2019 in the strait off Port Hask. It consists of 48 seabed turbines with a combined capacity of 62 megawatts and is operated by Norvane Energy. Construction cost 310 million crowns, about a fifth over the original budget, mainly because of delays laying the export cable. In a typical year the array supplies electricity for roughly 41,000 homes. Norvane has said the turbines are expected to run for 25 years before major refurbishment.",
+    "facts": [
+      {"fact": "It has 48 turbines", "keywords": ["48", "turbine"]},
+      {"fact": "Capacity is 62 megawatts", "keywords": ["62"]},
+      {"fact": "It is operated by Norvane Energy", "keywords": ["Norvane"]},
+      {"fact": "It cost 310 million crowns", "keywords": ["310"]}
+    ]
+  },
+  {
+    "id": "p2",
+    "title": "Lumen Sync protocol, version 3",
+    "text": "Version 3 of the Lumen Sync protocol was released in March 2022. Its main change is a shorter handshake: a connection is now established in 2 round trips instead of 4. The maximum packet size was fixed at 1,380 bytes to avoid fragmentation on common tunnels. The protocol was designed by Ilse Marrow and her group at Kettering Labs, who published the specification under an open licence. Version 2 endpoints remain compatible, but they cannot use the shorter handshake.",
+    "facts": [
+      {"fact": "Version 3 was released in March 2022", "keywords": ["March 2022"]},
+      {"fact": "The handshake takes 2 round trips", "keywords": ["2 round|two round"]},
+      {"fact": "Maximum packet size is 1,380 bytes", "keywords": ["1380"]},
+      {"fact": "Designed by Ilse Marrow", "keywords": ["Marrow"]}
+    ]
+  },
+  {
+    "id": "p3",
+    "title": "Bark beetle infestation in Brannoch Forest",
+    "text": "A 2021 study led by Dr. Oren Halvik surveyed 214 plots across Brannoch Forest. The team found that bark beetle infestation rose by 37 percent after two consecutive dry summers. Stands dominated by a single spruce species were hit hardest, while mixed stands showed little change. The results were published in the Journal of Boreal Ecology. Halvik cautioned that the survey covered only three years and could not separate drought from the effect of earlier storm damage.",
+    "facts": [
+      {"fact": "The study surveyed 214 plots", "keywords": ["214"]},
+      {"fact": "Infestation rose 37 percent", "keywords": ["37"]},
+      {"fact": "The study was led by Oren Halvik", "keywords": ["Halvik"]},
+      {"fact": "Published in the Journal of Boreal Ecology", "keywords": ["Journal of Boreal Ecology"]}
+    ]
+  },
+  {
+    "id": "p4",
+    "title": "Quillon Robotics company profile",
+    "text": "Quillon Robotics was founded in 2014 in the city of Tarrow and now employs 1,250 people. Its revenue in 2023 was 480 million crowns. The company is led by chief executive Mara Dent, who joined from a logistics firm in 2018. Its best-selling product is the Strider K4, a warehouse robot that can lift 35 kilograms and run for a full shift on one charge. Most of Quillon's customers are grocery distributors.",
+    "facts": [
+      {"fact": "Founded in 2014", "keywords": ["2014"]},
+      {"fact": "It employs 1,250 people", "keywords": ["1250"]},
+      {"fact": "2023 revenue was 480 million crowns", "keywords": ["480"]},
+      {"fact": "The Strider K4 lifts 35 kilograms", "keywords": ["35"]}
+    ]
+  },
+  {
+    "id": "p5",
+    "title": "Zentravir phase 3 trial",
+    "text": "The phase 3 trial of the antiviral Zentravir enrolled 2,840 participants. Compared with placebo, the drug reduced hospitalisation by 58 percent when treatment began within three days of symptoms. The most common side effect was headache, reported by 12 percent of those treated. The Meridian Health Agency approved Zentravir in August 2023 for adults at high risk. The trial did not include children or pregnant women, so its results do not extend to those groups.",
+    "facts": [
+      {"fact": "The trial enrolled 2,840 participants", "keywords": ["2840"]},
+      {"fact": "Hospitalisation fell by 58 percent", "keywords": ["58"]},
+      {"fact": "Headache was reported by 12 percent", "keywords": ["12", "headache"]},
+      {"fact": "Approved in August 2023", "keywords": ["August 2023"]}
+    ]
+  },
+  {
+    "id": "p6",
+    "title": "Lake Arvenne",
+    "text": "Lake Arvenne has a surface area of 87 square kilometres and reaches 312 metres at its deepest point. It is fed mainly by the River Solde, which enters at the northern end. The lake freezes over for an average of 41 days each winter, a figure that has fallen over the past half century. It is the only known habitat of the silverfin char, a fish found nowhere else. Fishing for the char has been banned since a population survey found numbers falling.",
+    "facts": [
+      {"fact": "Surface area is 87 square kilometres", "keywords": ["87"]},
+      {"fact": "Deepest point is 312 metres", "keywords": ["312"]},
+      {"fact": "Fed by the River Solde", "keywords": ["Solde"]},
+      {"fact": "Freezes for 41 days on average", "keywords": ["41"]}
+    ]
+  },
+  {
+    "id": "p7",
+    "title": "Halden Bridge",
+    "text": "Halden Bridge opened to traffic in 1987. It is a cable-stayed bridge with a main span of 940 metres, designed by the engineer Petra Voss. A retrofit completed in 2016 replaced the deck bearings and cost 74 million crowns. The bridge now carries about 58,000 vehicles a day, well above the volume it was planned for. A second crossing has been proposed several times but has never been funded.",
+    "facts": [
+      {"fact": "Opened in 1987", "keywords": ["1987"]},
+      {"fact": "Main span is 940 metres", "keywords": ["940"]},
+      {"fact": "Designed by Petra Voss", "keywords": ["Voss"]},
+      {"fact": "The 2016 retrofit cost 74 million crowns", "keywords": ["74"]}
+    ]
+  },
+  {
+    "id": "p8",
+    "title": "Astrel Corvid-9 processor",
+    "text": "Astrel Semiconductors released the Corvid-9 processor in November 2024. It is built on a 3 nanometre process, has 24 cores, and is rated at 95 watts. Astrel reports that it is 18 percent faster than its predecessor, the Corvid-8, on its own benchmark suite. Independent reviewers have not yet confirmed that figure. The chip uses the same socket as the Corvid-8, so existing boards can be upgraded.",
+    "facts": [
+      {"fact": "Released in November 2024", "keywords": ["November 2024"]},
+      {"fact": "It has 24 cores", "keywords": ["24"]},
+      {"fact": "Rated at 95 watts", "keywords": ["95"]},
+      {"fact": "Reported 18 percent faster than the Corvid-8", "keywords": ["18"]}
+    ]
+  }
+]
