@@ -56,7 +56,7 @@ Each step ends with a commit. Each milestone ends with the docs listed under
 | Milestone | Title | Status |
 |---|---|---|
 | M0 | Planning | Done |
-| M1 | Foundations and model bake-off | Not started |
+| M1 | Foundations and model bake-off | Done (model choice provisional, see MODELS.md) |
 | M2 | Search, fetch and extract | Not started |
 | M3 | Quick mode end to end | Not started |
 | M4 | ML retrieval layer | Not started |
@@ -88,6 +88,12 @@ Purpose: a working project skeleton and an evidence-based choice of models.
 5. Bake-off script: run every candidate through the tasks in
    [MODELS.md](MODELS.md) and write a results table.
 6. Choose the models for each tier and record the choice.
+
+Outcome: all exit criteria met on 2026-11-23. Qwen 3.8 27B (MLX build in
+Ollama) is used for the fast and main tiers. Only two builds of that one
+model were compared; the wider comparison in MODELS.md section 6 is optional
+follow-up and does not block M2. The bake-off battery turned out too easy to
+rank strong models, and its long-context task was deferred to M5.
 
 Exit criteria: `mai doctor` passes; `mai ask "..."` returns a plain (uncited)
 local completion; bake-off results are committed in MODELS.md.
@@ -232,7 +238,7 @@ the milestone that depends on them.
 
 | Decision | Default | Needed by |
 |---|---|---|
-| Which models fill each tier | Decided by the M1 bake-off | M1 |
+| Heavy-tier model, and whether a smaller fast model is worth it | Qwen 3.8 27B for everything | M5 |
 | Vector store | LanceDB (embedded, no server) | M4 |
 | Web UI stack | FastAPI + server-rendered pages with HTMX | M8 |
 | Optional paid search fallback | None | M2 |

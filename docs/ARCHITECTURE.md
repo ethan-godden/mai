@@ -1,7 +1,9 @@
 # Architecture
 
 Last updated: 2026-11-23. This describes the *planned* design. Sections are
-updated as each milestone lands; anything not yet built is marked (planned).
+updated as each milestone lands. Built so far (M1): `mai.cli`, `mai.config`,
+`mai.llm`, `mai.doctor` and the model bake-off (`mai.bakeoff`). Everything else
+is planned.
 
 ## 1. Overview
 
@@ -59,9 +61,11 @@ check.
 
 | Component | Responsibility | Main dependencies |
 |---|---|---|
-| `mai.cli` | Commands: `ask`, `research`, `search`, `fetch`, `eval`, `doctor` | typer, rich |
+| `mai.cli` | Commands: `ask`, `doctor` (built); `research`, `search`, `fetch`, `eval` (planned) | typer, rich |
 | `mai.config` | Typed settings from `config.toml` and environment | pydantic-settings |
-| `mai.llm` | OpenAI-compatible client, structured output, model tiers, accounting | httpx / openai SDK, pydantic |
+| `mai.llm` | OpenAI-compatible client, structured output with prompt fallback and repair, model tiers, accounting | httpx, pydantic |
+| `mai.doctor` | Environment checks behind `mai doctor` | httpx |
+| `mai.bakeoff` | Model comparison battery and scoring | pydantic |
 | `mai.search` | Provider interface; SearXNG, arXiv, Wikipedia, Semantic Scholar | httpx |
 | `mai.fetch` | Concurrent fetching, cache, robots, rate limits, browser fallback | httpx, playwright |
 | `mai.extract` | HTML and PDF to Markdown plus metadata | trafilatura, PDF library |

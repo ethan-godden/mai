@@ -13,6 +13,7 @@ build/
 .env
 .env.*
 !.env.example
+config.toml
 config.local.toml
 
 # Runtime data: never commit models, caches, indexes or research runs

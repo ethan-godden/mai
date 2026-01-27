@@ -1,0 +1,869 @@
+{
+  "label": "qwen3.8:27b (effort=none)",
+  "model": "qwen3.8:27b",
+  "base_url": "http://localhost:11434/v1",
+  "reasoning_effort": "none",
+  "date": "2026-11-23T01:26:45",
+  "machine": "arm64 macOS-27.2.1-arm64-arm-64bit, 128 GB",
+  "backend": "ollama 0.40.17",
+  "format": "safetensors",
+  "quantization": "nvfp4",
+  "runner": "mlx",
+  "memory_gb": 34.0,
+  "metrics": {
+    "structured": {
+      "valid_first_try": 0.917,
+      "valid_after_repair": 1.0
+    },
+    "rewrite": {
+      "valid": 1.0,
+      "distinct": 1.0
+    },
+    "notes": {
+      "fact_recall": 1.0,
+      "quote_verbatim": 1.0
+    },
+    "grounded": {
+      "answer_correct": 1.0,
+      "citation_correct": 1.0,
+      "declines_when_unsupported": 1.0
+    }
+  },
+  "throughput": {
+    "calls": 40,
+    "failed_calls": 0,
+    "schema_enforced": 0.0,
+    "median_tokens_per_s": 50.23,
+    "median_ttft_s": 1.44,
+    "total_s": 216.4,
+    "completion_tokens": 7180
+  },
+  "samples": {
+    "structured": [
+      {
+        "id": "s1",
+        "attempts": 1,
+        "output": {
+          "queries": [
+            "long-term health effects of intermittent fasting",
+            "intermittent fasting cardiovascular and metabolic outcomes",
+            "intermittent fasting muscle mass and bone density",
+            "intermittent fasting cancer risk and longevity"
+          ]
+        }
+      },
+      {
+        "id": "s2",
+        "attempts": 1,
+        "output": {
+          "queries": [
+            "solid-state vs lithium-ion batteries electric vehicles comparison",
+            "solid-state battery advantages disadvantages EVs 2024",
+            "solid-state battery energy density range cost lithium-ion",
+            "solid-state battery commercialization timeline electric cars"
+          ]
+        }
+      },
+      {
+        "id": "s3",
+        "attempts": 1,
+        "output": {
+          "queries": [
+            "Late Bronze Age collapse causes eastern Mediterranean",
+            "Sea Peoples invasion Bronze Age collapse",
+            "climate change drought Late Bronze Age collapse",
+            "systems collapse network disruption Bronze Age civilizations"
+          ]
+        }
+      },
+      {
+        "id": "s4",
+        "attempts": 1,
+        "output": {
+          "verdict": "insufficient",
+          "missing": [
+            "Evidence on productivity in knowledge-based or creative roles, as call centers represent a narrow, repetitive task domain.",
+            "Counter-evidence or studies showing no productivity gain or a decline in remote work settings.",
+            "Analysis of the long-term sustainability of the 13% productivity gain versus short-term novelty effects.",
+            "Data on the impact of remote work on employee well-being, collaboration, and innovation, which are key components of overall productivity.",
+            "Contextual factors such as industry type, management style, and technological infrastructure that influence remote work outcomes."
+          ]
+        }
+      },
+      {
+        "id": "s5",
+        "attempts": 1,
+        "output": {
+          "verdict": "sufficient",
+          "missing": []
+        }
+      },
+      {
+        "id": "s6",
+        "attempts": 1,
+        "output": {
+          "verdict": "insufficient",
+          "missing": [
+            "Cost-benefit analysis comparing construction and operational expenses of trams versus bus rapid transit",
+            "Ridership demand projections and population density data for the small city",
+            "Environmental impact assessments for both transit options",
+            "Public opinion surveys or community engagement results",
+            "Existing public transportation infrastructure and integration potential",
+            "Maintenance and long-term sustainability considerations",
+            "Regulatory and zoning constraints specific to the city",
+            "Case studies or examples from similar-sized cities that implemented either system"
+          ]
+        }
+      },
+      {
+        "id": "s7",
+        "attempts": 1,
+        "output": {
+          "title": "The Current State of Nuclear Fusion Power: Progress, Challenges, and Future Prospects",
+          "sections": [
+            {
+              "title": "Historical Context and Scientific Foundations",
+              "sub_questions": [
+                "What are the fundamental principles of nuclear fusion and the conditions required to achieve it?",
+                "How has the scientific understanding of plasma physics evolved over the last century?",
+                "What were the key milestones in the development of fusion research from the 1950s to the present day?"
+              ]
+            },
+            {
+              "title": "Major Global Projects and Experimental Facilities",
+              "sub_questions": [
+                "What is the current status and timeline of the ITER project in France?",
+                "What recent breakthroughs have been achieved at the National Ignition Facility (NIF) in the United States?",
+                "How do other major international experiments like JET and EAST compare in terms of performance and goals?"
+              ]
+            },
+            {
+              "title": "Private Sector Innovation and Commercialization",
+              "sub_questions": [
+                "Which private fusion startups are currently leading the race, and what technologies are they pursuing?",
+                "What is the total amount of venture capital and government funding invested in the fusion sector in the last five years?",
+                "What are the projected timelines for commercial viability proposed by these private companies?"
+              ]
+            },
+            {
+              "title": "Technical and Engineering Challenges",
+              "sub_questions": [
+                "What are the primary obstacles regarding plasma confinement and stability?",
+                "How are researchers addressing the issue of neutron damage to reactor materials?",
+                "What are the current limitations in achieving net energy gain (Q > 1) consistently?"
+              ]
+            },
+            {
+              "title": "Economic and Regulatory Landscape",
+              "sub_questions": [
+                "What are the estimated costs of building and operating a commercial fusion plant compared to fission and renewables?",
+                "How are regulatory bodies adapting to the unique safety and waste profiles of fusion energy?",
+                "What is the potential impact of fusion power on global energy markets and geopolitical dynamics?"
+              ]
+            },
+            {
+              "title": "Future Outlook and Conclusion",
+              "sub_questions": [
+                "When is it realistically expected that fusion power will contribute to the electrical grid?",
+                "What are the next critical scientific experiments scheduled for the next decade?",
+                "What are the main risks that could delay the realization of fusion energy?"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "s8",
+        "attempts": 1,
+        "output": {
+          "title": "Evaluating the Efficacy of Four-Day Work Weeks: A Comprehensive Analysis",
+          "sections": [
+            {
+              "title": "Introduction and Contextual Background",
+              "sub_questions": [
+                "What is the historical evolution of the four-day work week model?",
+                "What are the primary motivations driving organizations to adopt this schedule?",
+                "What is the scope and methodology of this research report?"
+              ]
+            },
+            {
+              "title": "Impact on Employee Well-being and Productivity",
+              "sub_questions": [
+                "How does the four-day work week affect employee mental health and burnout rates?",
+                "What are the measurable changes in individual and team productivity levels?",
+                "How do employee satisfaction and retention rates compare to traditional five-day schedules?"
+              ]
+            },
+            {
+              "title": "Organizational Performance and Economic Viability",
+              "sub_questions": [
+                "What is the impact on overall company revenue and operational efficiency?",
+                "How do labor costs and overhead expenses change under this model?",
+                "What are the effects on customer service quality and client satisfaction?"
+              ]
+            },
+            {
+              "title": "Challenges, Limitations, and Industry Variability",
+              "sub_questions": [
+                "Which industries or job roles are least suited for a four-day work week?",
+                "What are the common implementation barriers and resistance from management?",
+                "How does the model affect work-life balance for employees with caregiving responsibilities?"
+              ]
+            },
+            {
+              "title": "Conclusion and Strategic Recommendations",
+              "sub_questions": [
+                "What are the key findings regarding the overall effectiveness of the four-day work week?",
+                "What best practices should organizations follow when transitioning to this model?",
+                "What future trends or policy changes are anticipated in this area?"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "s9",
+        "attempts": 1,
+        "output": {
+          "title": "SQL vs. NoSQL: Strategic Trade-offs for New Web Applications",
+          "sections": [
+            {
+              "title": "Data Modeling and Schema Flexibility",
+              "sub_questions": [
+                "How does the rigid schema of SQL databases impact the speed of development for evolving web application requirements?",
+                "What are the advantages of NoSQL's schema-less approach in handling unstructured or semi-structured data?",
+                "How does the choice between relational and document/graph models affect the complexity of data relationships in the application?"
+              ]
+            },
+            {
+              "title": "Scalability and Performance",
+              "sub_questions": [
+                "What are the differences between vertical scaling in SQL and horizontal scaling in NoSQL for handling high traffic?",
+                "How do read and write throughput capabilities compare between the two paradigms under peak load conditions?",
+                "What are the cost implications of scaling infrastructure for SQL versus NoSQL solutions?"
+              ]
+            },
+            {
+              "title": "Consistency and Reliability",
+              "sub_questions": [
+                "How does ACID compliance in SQL databases compare to the BASE model often used in NoSQL systems?",
+                "What are the risks of eventual consistency in NoSQL databases for financial or transactional web applications?",
+                "How do these consistency models impact user experience and data integrity in real-time applications?"
+              ]
+            },
+            {
+              "title": "Operational Complexity and Ecosystem",
+              "sub_questions": [
+                "What are the differences in maintenance, backup, and recovery procedures for SQL versus NoSQL databases?",
+                "How does the availability of mature tooling, ORMs, and community support differ between the two technologies?",
+                "What are the hiring and training implications for a development team choosing between SQL and NoSQL?"
+              ]
+            },
+            {
+              "title": "Decision Framework and Recommendations",
+              "sub_questions": [
+                "Under what specific use cases is a SQL database the superior choice for a new web application?",
+                "When should a NoSQL database be preferred to leverage its specific strengths?",
+                "Is a polyglot persistence approach viable for a new web application, and what are the trade-offs?"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "s10",
+        "attempts": 1,
+        "output": {
+          "notes": [
+            {
+              "claim": "The Orrin Canal is 82 kilometres long.",
+              "quote": "The Orrin Canal is 82 kilometres long"
+            },
+            {
+              "claim": "The Orrin Canal was completed in 1904.",
+              "quote": "was completed in 1904"
+            },
+            {
+              "claim": "The Orrin Canal has 11 locks.",
+              "quote": "It has 11 locks"
+            },
+            {
+              "claim": "Freight traffic on the Orrin Canal peaked in 1961.",
+              "quote": "Freight traffic peaked in 1961"
+            },
+            {
+              "claim": "Freight traffic on the Orrin Canal has declined continuously since 1961.",
+              "quote": "and has fallen ever since"
+            }
+          ]
+        }
+      },
+      {
+        "id": "s11",
+        "attempts": 2,
+        "output": {
+          "notes": [
+            {
+              "claim": "Pellam's comet has a return period of 76 years.",
+              "quote": "Pellam's comet returns every 76 years."
+            },
+            {
+              "claim": "Pellam's comet was last observed in 1998.",
+              "quote": "It was last seen in 1998"
+            },
+            {
+              "claim": "Pellam's comet passed within 0.4 astronomical units of Earth in 1998.",
+              "quote": "when it passed within 0.4 astronomical units of Earth."
+            }
+          ]
+        }
+      },
+      {
+        "id": "s12",
+        "attempts": 1,
+        "output": {
+          "notes": [
+            {
+              "claim": "The Taldane Institute employs 340 staff members.",
+              "quote": "The Taldane Institute has 340 staff."
+            },
+            {
+              "claim": "The director of the Taldane Institute is Wen Okoro.",
+              "quote": "\"We doubled our funding in 2020,\" said its director, Wen Okoro."
+            },
+            {
+              "claim": "The Taldane Institute doubled its funding in the year 2020.",
+              "quote": "\"We doubled our funding in 2020,\" said its director, Wen Okoro."
+            },
+            {
+              "claim": "The Taldane Institute conducts research on soil microbes.",
+              "quote": "It studies soil microbes."
+            }
+          ]
+        }
+      }
+    ],
+    "rewrite": [
+      {
+        "id": "r1",
+        "question": "Is it worth replacing a gas boiler with a heat pump in a cold climate?",
+        "queries": [
+          "heat pump vs gas boiler cost cold climate",
+          "heat pump efficiency cold weather COP",
+          "heat pump cold climate installation cost savings",
+          "heat pump vs gas boiler energy efficiency cold climate"
+        ]
+      },
+      {
+        "id": "r2",
+        "question": "What do we actually know about the causes of the decline in insect populations?",
+        "queries": [
+          "causes of insect population decline review",
+          "pesticide impact on insect biodiversity",
+          "habitat loss and climate change insect decline",
+          "insect apocalypse drivers scientific evidence"
+        ]
+      },
+      {
+        "id": "r3",
+        "question": "How are small businesses using large language models, and is it paying off?",
+        "queries": [
+          "small business adoption of large language models",
+          "ROI of LLMs in small businesses",
+          "case studies small businesses using AI language models",
+          "challenges small businesses face with LLMs"
+        ]
+      },
+      {
+        "id": "r4",
+        "question": "What happened to the plan to build a high-speed rail line in California?",
+        "queries": [
+          "California high-speed rail project status 2024",
+          "California high-speed rail funding cuts and delays",
+          "California high-speed rail route changes and construction progress"
+        ]
+      },
+      {
+        "id": "r5",
+        "question": "Which is better for a beginner learning to program in 2026, Python or JavaScript?",
+        "queries": [
+          "Python vs JavaScript for beginners 2026",
+          "best programming language for beginners 2026",
+          "Python vs JavaScript learning curve comparison",
+          "job market demand Python vs JavaScript 2026"
+        ]
+      },
+      {
+        "id": "r6",
+        "question": "How reliable are sleep trackers compared with a sleep lab?",
+        "queries": [
+          "sleep tracker accuracy vs polysomnography",
+          "wearable sleep monitor validation against sleep lab",
+          "consumer sleep tracking devices sensitivity specificity",
+          "limitations of sleep trackers compared to clinical sleep studies"
+        ]
+      },
+      {
+        "id": "r7",
+        "question": "What are the arguments for and against a universal basic income, and what do pilot studies show?",
+        "queries": [
+          "arguments for and against universal basic income",
+          "universal basic income pilot studies results",
+          "UBI pilot programs outcomes and findings",
+          "criticisms and benefits of universal basic income"
+        ]
+      },
+      {
+        "id": "r8",
+        "question": "How does the Rust borrow checker work and why do people find it difficult?",
+        "queries": [
+          "Rust borrow checker implementation internals",
+          "why Rust borrow checker difficult for developers",
+          "Rust ownership system learning curve challenges",
+          "Rust compiler borrow checking algorithm"
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "id": "p1",
+        "notes": [
+          {
+            "claim": "The Veldrin Tidal Array was commissioned in 2019.",
+            "quote": "The Veldrin Tidal Array was commissioned in 2019 in the strait off Port Hask."
+          },
+          {
+            "claim": "The Veldrin Tidal Array is located in the strait off Port Hask.",
+            "quote": "The Veldrin Tidal Array was commissioned in 2019 in the strait off Port Hask."
+          },
+          {
+            "claim": "The Veldrin Tidal Array consists of 48 seabed turbines.",
+            "quote": "It consists of 48 seabed turbines with a combined capacity of 62 megawatts and is operated by Norvane Energy."
+          },
+          {
+            "claim": "The Veldrin Tidal Array has a combined capacity of 62 megawatts.",
+            "quote": "It consists of 48 seabed turbines with a combined capacity of 62 megawatts and is operated by Norvane Energy."
+          },
+          {
+            "claim": "The Veldrin Tidal Array is operated by Norvane Energy.",
+            "quote": "It consists of 48 seabed turbines with a combined capacity of 62 megawatts and is operated by Norvane Energy."
+          },
+          {
+            "claim": "The construction of the Veldrin Tidal Array cost 310 million crowns.",
+            "quote": "Construction cost 310 million crowns, about a fifth over the original budget, mainly because of delays laying the export cable."
+          },
+          {
+            "claim": "The construction cost was about a fifth over the original budget.",
+            "quote": "Construction cost 310 million crowns, about a fifth over the original budget, mainly because of delays laying the export cable."
+          },
+          {
+            "claim": "The cost overrun was mainly due to delays in laying the export cable.",
+            "quote": "Construction cost 310 million crowns, about a fifth over the original budget, mainly because of delays laying the export cable."
+          },
+          {
+            "claim": "In a typical year, the Veldrin Tidal Array supplies electricity for roughly 41,000 homes.",
+            "quote": "In a typical year the array supplies electricity for roughly 41,000 homes."
+          },
+          {
+            "claim": "Norvane has stated that the turbines are expected to run for 25 years before major refurbishment.",
+            "quote": "Norvane has said the turbines are expected to run for 25 years before major refurbishment."
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "notes": [
+          {
+            "claim": "Version 3 of the Lumen Sync protocol was released in March 2022.",
+            "quote": "Version 3 of the Lumen Sync protocol was released in March 2022."
+          },
+          {
+            "claim": "The main change in Version 3 is a shorter handshake that establishes a connection in 2 round trips instead of 4.",
+            "quote": "Its main change is a shorter handshake: a connection is now established in 2 round trips instead of 4."
+          },
+          {
+            "claim": "The maximum packet size in the protocol is fixed at 1,380 bytes to prevent fragmentation on common tunnels.",
+            "quote": "The maximum packet size was fixed at 1,380 bytes to avoid fragmentation on common tunnels."
+          },
+          {
+            "claim": "The protocol was designed by Ilse Marrow and her group at Kettering Labs.",
+            "quote": "The protocol was designed by Ilse Marrow and her group at Kettering Labs, who published the specification under an open licence."
+          },
+          {
+            "claim": "The specification for the protocol was published under an open licence.",
+            "quote": "The protocol was designed by Ilse Marrow and her group at Kettering Labs, who published the specification under an open licence."
+          },
+          {
+            "claim": "Version 2 endpoints remain compatible with Version 3 but cannot utilize the shorter handshake.",
+            "quote": "Version 2 endpoints remain compatible, but they cannot use the shorter handshake."
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "notes": [
+          {
+            "claim": "A 2021 study led by Dr. Oren Halvik surveyed 214 plots in Brannoch Forest.",
+            "quote": "A 2021 study led by Dr. Oren Halvik surveyed 214 plots across Brannoch Forest."
+          },
+          {
+            "claim": "Bark beetle infestation increased by 37 percent following two consecutive dry summers.",
+            "quote": "The team found that bark beetle infestation rose by 37 percent after two consecutive dry summers."
+          },
+          {
+            "claim": "Stands dominated by a single spruce species were most severely affected by the infestation.",
+            "quote": "Stands dominated by a single spruce species were hit hardest, while mixed stands showed little change."
+          },
+          {
+            "claim": "Mixed stands experienced little change in bark beetle infestation levels.",
+            "quote": "Stands dominated by a single spruce species were hit hardest, while mixed stands showed little change."
+          },
+          {
+            "claim": "The study's results were published in the Journal of Boreal Ecology.",
+            "quote": "The results were published in the Journal of Boreal Ecology."
+          },
+          {
+            "claim": "Dr. Halvik noted that the survey's three-year duration was insufficient to distinguish between drought and earlier storm damage effects.",
+            "quote": "Halvik cautioned that the survey covered only three years and could not separate drought from the effect of earlier storm damage."
+          }
+        ]
+      },
+      {
+        "id": "p4",
+        "notes": [
+          {
+            "claim": "Quillon Robotics was founded in 2014.",
+            "quote": "Quillon Robotics was founded in 2014 in the city of Tarrow and now employs 1,250 people."
+          },
+          {
+            "claim": "Quillon Robotics was founded in the city of Tarrow.",
+            "quote": "Quillon Robotics was founded in 2014 in the city of Tarrow and now employs 1,250 people."
+          },
+          {
+            "claim": "Quillon Robotics currently employs 1,250 people.",
+            "quote": "Quillon Robotics was founded in 2014 in the city of Tarrow and now employs 1,250 people."
+          },
+          {
+            "claim": "The company's revenue in 2023 was 480 million crowns.",
+            "quote": "Its revenue in 2023 was 480 million crowns."
+          },
+          {
+            "claim": "Mara Dent is the chief executive of Quillon Robotics.",
+            "quote": "The company is led by chief executive Mara Dent, who joined from a logistics firm in 2018."
+          },
+          {
+            "claim": "Mara Dent joined Quillon Robotics in 2018.",
+            "quote": "The company is led by chief executive Mara Dent, who joined from a logistics firm in 2018."
+          },
+          {
+            "claim": "Mara Dent previously worked at a logistics firm.",
+            "quote": "The company is led by chief executive Mara Dent, who joined from a logistics firm in 2018."
+          },
+          {
+            "claim": "The Strider K4 is Quillon Robotics' best-selling product.",
+            "quote": "Its best-selling product is the Strider K4, a warehouse robot that can lift 35 kilograms and run for a full shift on one charge."
+          },
+          {
+            "claim": "The Strider K4 is a warehouse robot.",
+            "quote": "Its best-selling product is the Strider K4, a warehouse robot that can lift 35 kilograms and run for a full shift on one charge."
+          },
+          {
+            "claim": "The Strider K4 can lift 35 kilograms.",
+            "quote": "Its best-selling product is the Strider K4, a warehouse robot that can lift 35 kilograms and run for a full shift on one charge."
+          },
+          {
+            "claim": "The Strider K4 can run for a full shift on one charge.",
+            "quote": "Its best-selling product is the Strider K4, a warehouse robot that can lift 35 kilograms and run for a full shift on one charge."
+          },
+          {
+            "claim": "Most of Quillon's customers are grocery distributors.",
+            "quote": "Most of Quillon's customers are grocery distributors."
+          }
+        ]
+      },
+      {
+        "id": "p5",
+        "notes": [
+          {
+            "claim": "The phase 3 trial of the antiviral Zentravir enrolled 2,840 participants.",
+            "quote": "The phase 3 trial of the antiviral Zentravir enrolled 2,840 participants."
+          },
+          {
+            "claim": "Zentravir reduced hospitalisation by 58 percent compared with placebo when treatment began within three days of symptoms.",
+            "quote": "Compared with placebo, the drug reduced hospitalisation by 58 percent when treatment began within three days of symptoms."
+          },
+          {
+            "claim": "Headache was the most common side effect of Zentravir, reported by 12 percent of treated participants.",
+            "quote": "The most common side effect was headache, reported by 12 percent of those treated."
+          },
+          {
+            "claim": "The Meridian Health Agency approved Zentravir for adults at high risk in August 2023.",
+            "quote": "The Meridian Health Agency approved Zentravir in August 2023 for adults at high risk."
+          },
+          {
+            "claim": "The Zentravir phase 3 trial did not include children or pregnant women.",
+            "quote": "The trial did not include children or pregnant women, so its results do not extend to those groups."
+          },
+          {
+            "claim": "The results of the Zentravir phase 3 trial do not extend to children or pregnant women.",
+            "quote": "The trial did not include children or pregnant women, so its results do not extend to those groups."
+          }
+        ]
+      },
+      {
+        "id": "p6",
+        "notes": [
+          {
+            "claim": "Lake Arvenne has a surface area of 87 square kilometres.",
+            "quote": "Lake Arvenne has a surface area of 87 square kilometres"
+          },
+          {
+            "claim": "The deepest point of Lake Arvenne is 312 metres.",
+            "quote": "reaches 312 metres at its deepest point"
+          },
+          {
+            "claim": "The River Solde is the main source of water for Lake Arvenne.",
+            "quote": "It is fed mainly by the River Solde"
+          },
+          {
+            "claim": "The River Solde enters Lake Arvenne at the northern end.",
+            "quote": "which enters at the northern end"
+          },
+          {
+            "claim": "Lake Arvenne freezes over for an average of 41 days each winter.",
+            "quote": "The lake freezes over for an average of 41 days each winter"
+          },
+          {
+            "claim": "The average number of days Lake Arvenne freezes over has decreased over the last 50 years.",
+            "quote": "a figure that has fallen over the past half century"
+          },
+          {
+            "claim": "Lake Arvenne is the only known habitat for the silverfin char.",
+            "quote": "It is the only known habitat of the silverfin char"
+          },
+          {
+            "claim": "The silverfin char is a fish species found nowhere else in the world.",
+            "quote": "a fish found nowhere else"
+          },
+          {
+            "claim": "Fishing for the silverfin char has been banned.",
+            "quote": "Fishing for the char has been banned"
+          },
+          {
+            "claim": "The ban on fishing for the silverfin char was implemented after a population survey indicated a decline in numbers.",
+            "quote": "since a population survey found numbers falling"
+          }
+        ]
+      },
+      {
+        "id": "p7",
+        "notes": [
+          {
+            "claim": "Halden Bridge opened to traffic in 1987.",
+            "quote": "Halden Bridge opened to traffic in 1987."
+          },
+          {
+            "claim": "Halden Bridge is a cable-stayed bridge.",
+            "quote": "It is a cable-stayed bridge with a main span of 940 metres, designed by the engineer Petra Voss."
+          },
+          {
+            "claim": "The main span of Halden Bridge is 940 metres.",
+            "quote": "It is a cable-stayed bridge with a main span of 940 metres, designed by the engineer Petra Voss."
+          },
+          {
+            "claim": "The engineer Petra Voss designed Halden Bridge.",
+            "quote": "It is a cable-stayed bridge with a main span of 940 metres, designed by the engineer Petra Voss."
+          },
+          {
+            "claim": "A retrofit was completed in 2016 that replaced the deck bearings.",
+            "quote": "A retrofit completed in 2016 replaced the deck bearings and cost 74 million crowns."
+          },
+          {
+            "claim": "The 2016 retrofit cost 74 million crowns.",
+            "quote": "A retrofit completed in 2016 replaced the deck bearings and cost 74 million crowns."
+          },
+          {
+            "claim": "Halden Bridge currently carries approximately 58,000 vehicles per day.",
+            "quote": "The bridge now carries about 58,000 vehicles a day, well above the volume it was planned for."
+          },
+          {
+            "claim": "The current daily vehicle volume on Halden Bridge exceeds the volume it was originally planned for.",
+            "quote": "The bridge now carries about 58,000 vehicles a day, well above the volume it was planned for."
+          },
+          {
+            "claim": "A second crossing over the bridge's location has been proposed multiple times.",
+            "quote": "A second crossing has been proposed several times but has never been funded."
+          },
+          {
+            "claim": "No funding has ever been secured for a second crossing.",
+            "quote": "A second crossing has been proposed several times but has never been funded."
+          }
+        ]
+      },
+      {
+        "id": "p8",
+        "notes": [
+          {
+            "claim": "Astrel Semiconductors released the Corvid-9 processor in November 2024.",
+            "quote": "Astrel Semiconductors released the Corvid-9 processor in November 2024."
+          },
+          {
+            "claim": "The Corvid-9 processor is built on a 3 nanometre process.",
+            "quote": "It is built on a 3 nanometre process, has 24 cores, and is rated at 95 watts."
+          },
+          {
+            "claim": "The Corvid-9 processor has 24 cores.",
+            "quote": "It is built on a 3 nanometre process, has 24 cores, and is rated at 95 watts."
+          },
+          {
+            "claim": "The Corvid-9 processor is rated at 95 watts.",
+            "quote": "It is built on a 3 nanometre process, has 24 cores, and is rated at 95 watts."
+          },
+          {
+            "claim": "Astrel reports that the Corvid-9 is 18 percent faster than the Corvid-8 on its own benchmark suite.",
+            "quote": "Astrel reports that it is 18 percent faster than its predecessor, the Corvid-8, on its own benchmark suite."
+          },
+          {
+            "claim": "Independent reviewers have not yet confirmed the performance figure reported by Astrel.",
+            "quote": "Independent reviewers have not yet confirmed that figure."
+          },
+          {
+            "claim": "The Corvid-9 chip uses the same socket as the Corvid-8.",
+            "quote": "The chip uses the same socket as the Corvid-8, so existing boards can be upgraded."
+          },
+          {
+            "claim": "Existing boards can be upgraded to the Corvid-9 processor.",
+            "quote": "The chip uses the same socket as the Corvid-8, so existing boards can be upgraded."
+          }
+        ]
+      }
+    ],
+    "grounded": [
+      {
+        "id": "g1",
+        "gold": "p1",
+        "output": {
+          "answerable": true,
+          "answer": "48",
+          "citations": [
+            "p1"
+          ]
+        }
+      },
+      {
+        "id": "g2",
+        "gold": "p2",
+        "output": {
+          "answerable": true,
+          "answer": "2",
+          "citations": [
+            "p2"
+          ]
+        }
+      },
+      {
+        "id": "g3",
+        "gold": "p3",
+        "output": {
+          "answerable": true,
+          "answer": "37 percent",
+          "citations": [
+            "p3"
+          ]
+        }
+      },
+      {
+        "id": "g4",
+        "gold": "p4",
+        "output": {
+          "answerable": true,
+          "answer": "480 million crowns",
+          "citations": [
+            "p4"
+          ]
+        }
+      },
+      {
+        "id": "g5",
+        "gold": "p5",
+        "output": {
+          "answerable": true,
+          "answer": "The Meridian Health Agency approved Zentravir in August 2023.",
+          "citations": [
+            "p5"
+          ]
+        }
+      },
+      {
+        "id": "g6",
+        "gold": "p6",
+        "output": {
+          "answerable": true,
+          "answer": "River Solde",
+          "citations": [
+            "p6"
+          ]
+        }
+      },
+      {
+        "id": "g7",
+        "gold": "p7",
+        "output": {
+          "answerable": true,
+          "answer": "Halden Bridge was designed by Petra Voss and has a main span of 940 metres.",
+          "citations": [
+            "p7"
+          ]
+        }
+      },
+      {
+        "id": "g8",
+        "gold": "p8",
+        "output": {
+          "answerable": true,
+          "answer": "24",
+          "citations": [
+            "p8"
+          ]
+        }
+      },
+      {
+        "id": "g9",
+        "gold": null,
+        "output": {
+          "answerable": false,
+          "answer": "",
+          "citations": []
+        }
+      },
+      {
+        "id": "g10",
+        "gold": null,
+        "output": {
+          "answerable": false,
+          "answer": "",
+          "citations": []
+        }
+      },
+      {
+        "id": "g11",
+        "gold": null,
+        "output": {
+          "answerable": false,
+          "answer": "",
+          "citations": []
+        }
+      },
+      {
+        "id": "g12",
+        "gold": null,
+        "output": {
+          "answerable": false,
+          "answer": "",
+          "citations": []
+        }
+      }
+    ]
+  },
+  "rescored": "2026-11-23: answer_correct recomputed from saved outputs after fixing the g2 answer key, which wrongly rejected the bare answer '2'."
+}

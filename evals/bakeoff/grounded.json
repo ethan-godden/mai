@@ -1,6 +1,6 @@
 [
   {"id": "g1", "passages": ["p1", "p6", "p7"], "question": "How many turbines does the Veldrin Tidal Array have?", "gold": "p1", "keywords": ["48"]},
-  {"id": "g2", "passages": ["p4", "p2", "p8"], "question": "How many round trips does a Lumen Sync version 3 handshake take?", "gold": "p2", "keywords": ["2 round|two round"]},
+  {"id": "g2", "passages": ["p4", "p2", "p8"], "question": "How many round trips does a Lumen Sync version 3 handshake take?", "gold": "p2", "keywords": ["2|two"]},
   {"id": "g3", "passages": ["p5", "p3", "p6"], "question": "By how much did bark beetle infestation rise in Brannoch Forest after the dry summers?", "gold": "p3", "keywords": ["37"]},
   {"id": "g4", "passages": ["p8", "p1", "p4"], "question": "What was Quillon Robotics' revenue in 2023?", "gold": "p4", "keywords": ["480"]},
   {"id": "g5", "passages": ["p3", "p7", "p5"], "question": "Which agency approved Zentravir, and when?", "gold": "p5", "keywords": ["Meridian", "2023"]},

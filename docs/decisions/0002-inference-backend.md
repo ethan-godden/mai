@@ -1,7 +1,7 @@
 # 0002: Backend-agnostic inference over an OpenAI-compatible API
 
 Date: 2026-11-23
-Status: Accepted. The default backend is provisional until the M1 bake-off.
+Status: Accepted. Default backend chosen 2026-11-23, see Outcome.
 
 ## Context
 
@@ -43,3 +43,22 @@ release. All of them expose an OpenAI-compatible HTTP API.
 - Small task models (embedder, reranker, verifier) are the exception: they are
   loaded in-process through sentence-transformers / transformers, because
   they are tiny and are called in tight batches.
+
+## Outcome (2026-11-23)
+
+The M1 bake-off ([MODELS.md](../MODELS.md)) settled the default as **Ollama
+with the model's MLX build**:
+
+- The MLX build of Qwen 3.8 27B generated about 3.6 times faster than the
+  llama.cpp (GGUF) build of the same model, at the same accuracy.
+- Ollama 0.40.17's MLX runner cannot enforce a JSON schema; it answers
+  `501 structured output is unavailable`. Its llama.cpp runner can.
+- Because of that, decision 2 was strengthened: the client always states the
+  schema in the prompt, sends `response_format` only to backends that accept
+  it, validates every reply and makes one repair attempt. With prompt-only
+  JSON the model was valid first time in 92 % of calls and in 100 % after
+  the repair turn.
+
+`mlx_lm.server` has not been tested yet. It stays a supported target in
+principle (same API), and is worth testing because it might combine MLX speed
+with schema enforcement.
