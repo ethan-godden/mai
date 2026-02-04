@@ -8,6 +8,8 @@ from mai.doctor import Check, run_checks
 
 def server(*model_ids: str) -> httpx.MockTransport:
     def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/healthz":
+            return httpx.Response(200, text="OK")
         assert request.url.path.endswith("/models")
         return httpx.Response(200, json={"data": [{"id": m} for m in model_ids]})
 
@@ -37,6 +39,7 @@ async def test_all_ok_when_models_are_served():
     assert checks["Model: fast"].status == "ok"  # matches the ":latest" tag
     assert checks["Model: main"].status == "ok"
     assert checks["Model: heavy"].status == "ok"  # optional
+    assert checks["Search: SearXNG"].status == "ok"
 
 
 async def test_unconfigured_and_missing_models_fail():
@@ -57,6 +60,7 @@ async def test_unreachable_server_fails_and_models_are_unverified():
         )
     )
     assert checks["Inference server"].status == "fail"
+    assert checks["Search: SearXNG"].status == "fail"
     assert checks["Model: main"].status == "warn"
 
 
@@ -83,3 +87,9 @@ def test_cli_reports_bad_config(tmp_path):
     bad.write_text("[llm]\nnope = 1\n")
     result = CliRunner().invoke(app, ["doctor", "--config", str(bad)])
     assert result.exit_code == 2
+
+
+async def test_search_check_is_skipped_when_searxng_is_not_enabled():
+    config = Settings(search={"providers": []})  # type: ignore[arg-type]
+    checks = by_name(await run_checks(config, transport=server()))
+    assert "Search: SearXNG" not in checks

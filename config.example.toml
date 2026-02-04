@@ -36,6 +36,13 @@ temperature = 0.2
 # base_url = "http://localhost:8080/v1"
 # max_tokens = 8192
 
+[search]
+# Providers queried by default. Run "mai search --help" for the full list.
+providers = ["searxng"]
+searxng_url = "http://localhost:8888"   # see docs/guide/search.md
+max_results = 10
+timeout_s = 20
+
 [paths]
 data_dir = "data"      # caches and indexes
 runs_dir = "runs"      # one directory per research run

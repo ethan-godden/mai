@@ -159,6 +159,27 @@ async def _backend_checks(
     return checks
 
 
+async def _search_checks(
+    settings: Settings, transport: httpx.AsyncBaseTransport | None
+) -> list[Check]:
+    if "searxng" not in settings.search.providers:
+        return []
+    url = settings.search.searxng_url.rstrip("/")
+    try:
+        async with httpx.AsyncClient(transport=transport, timeout=5.0) as client:
+            (await client.get(f"{url}/healthz")).raise_for_status()
+    except httpx.HTTPError as error:
+        return [
+            Check(
+                "Search: SearXNG",
+                "fail",
+                f"{url} unreachable ({type(error).__name__})",
+                "Run scripts/searxng.sh setup once, then scripts/searxng.sh run.",
+            )
+        ]
+    return [Check("Search: SearXNG", "ok", url)]
+
+
 async def run_checks(
     settings: Settings, *, transport: httpx.AsyncBaseTransport | None = None
 ) -> list[Check]:
@@ -168,4 +189,5 @@ async def run_checks(
         _config_check(settings),
         *_path_checks(settings),
         *await _backend_checks(settings, transport),
+        *await _search_checks(settings, transport),
     ]

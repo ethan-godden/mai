@@ -86,6 +86,16 @@ class LLMSettings(_Section):
         )
 
 
+class SearchSettings(_Section):
+    """Search providers. See docs/guide/search.md."""
+
+    providers: list[str] = Field(default_factory=lambda: ["searxng"])
+    """Providers queried by default, by name."""
+    searxng_url: str = "http://localhost:8888"
+    max_results: int = 10
+    timeout_s: float = 20.0
+
+
 class PathSettings(_Section):
     """Where runtime data lives. Both directories are git-ignored."""
 
@@ -97,6 +107,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="MAI_", env_nested_delimiter="__", extra="forbid")
 
     llm: LLMSettings = Field(default_factory=LLMSettings)
+    search: SearchSettings = Field(default_factory=SearchSettings)
     paths: PathSettings = Field(default_factory=PathSettings)
     source: Path | None = Field(default=None, exclude=True)
     """The config file these settings were loaded from, if any."""

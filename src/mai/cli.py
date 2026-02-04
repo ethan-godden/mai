@@ -1,6 +1,7 @@
 """Command-line interface. Each command is a thin wrapper over library code."""
 
 import asyncio
+import json
 from pathlib import Path
 from typing import Annotated
 
@@ -14,6 +15,7 @@ from mai import __version__
 from mai.config import Settings, Tier, load_settings
 from mai.doctor import run_checks
 from mai.llm import Completion, LLMError, OpenAICompatClient
+from mai.search import PROVIDERS, SearchOutcome, build_providers, http_client, search_all
 
 app = typer.Typer(
     name="mai",
@@ -113,3 +115,52 @@ def ask(
         f"\n[dim]{escape(completion.model)} · {completion.completion_tokens or '?'} tokens · "
         f"{completion.duration_s:.1f}s · {speed}[/dim]"
     )
+
+
+@app.command()
+def search(
+    query: Annotated[str, typer.Argument(help="What to search for.")],
+    provider: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--provider",
+            "-p",
+            help=f"Provider to use; repeatable. Available: {', '.join(sorted(PROVIDERS))}.",
+        ),
+    ] = None,
+    max_results: Annotated[int | None, typer.Option("--max-results", "-n")] = None,
+    as_json: Annotated[bool, typer.Option("--json", help="Print results as JSON.")] = False,
+    config: ConfigOption = None,
+) -> None:
+    """Search the web and list merged results, without reading the pages."""
+    settings = _load(config).search
+
+    async def run() -> SearchOutcome:
+        async with http_client(settings) as client:
+            providers = build_providers(client, settings, provider)
+            return await search_all(
+                providers, query, max_results=max_results or settings.max_results
+            )
+
+    try:
+        outcome = asyncio.run(run())
+    except ValueError as error:
+        err_console.print(f"[red]{escape(str(error))}[/red]")
+        raise typer.Exit(code=2) from error
+
+    for name, message in outcome.errors.items():
+        err_console.print(f"[yellow]{escape(name)} failed:[/yellow] {escape(message)}")
+    if as_json:
+        typer.echo(json.dumps([r.model_dump(mode="json") for r in outcome.results], indent=2))
+    else:
+        for rank, result in enumerate(outcome.results, start=1):
+            source = ", ".join(result.providers + result.engines)
+            date = f" · {result.published}" if result.published else ""
+            console.print(f"[bold]{rank}. {escape(result.title)}[/bold]")
+            console.print(f"   {escape(result.url)}", style="blue", highlight=False, soft_wrap=True)
+            console.print(f"   [dim]{escape(source)}{date}[/dim]")
+            if result.snippet:
+                console.print(f"   {escape(result.snippet[:300])}", highlight=False)
+    if not outcome.results:
+        err_console.print("[red]No results.[/red]")
+        raise typer.Exit(code=1)
