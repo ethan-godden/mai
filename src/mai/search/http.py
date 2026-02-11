@@ -10,11 +10,15 @@ from mai.search.base import SearchError
 
 
 async def get(
-    client: httpx.AsyncClient, provider: str, url: str, params: dict[str, Any]
+    client: httpx.AsyncClient,
+    provider: str,
+    url: str,
+    params: dict[str, Any],
+    headers: dict[str, str] | None = None,
 ) -> httpx.Response:
     """GET that turns every transport or status failure into a SearchError."""
     try:
-        response = await client.get(url, params=params)
+        response = await client.get(url, params=params, headers=headers)
     except httpx.HTTPError as error:
         raise SearchError(provider, f"request failed ({type(error).__name__})") from error
     if response.status_code == 429:
@@ -25,9 +29,13 @@ async def get(
 
 
 async def get_json(
-    client: httpx.AsyncClient, provider: str, url: str, params: dict[str, Any]
+    client: httpx.AsyncClient,
+    provider: str,
+    url: str,
+    params: dict[str, Any],
+    headers: dict[str, str] | None = None,
 ) -> Any:
-    response = await get(client, provider, url, params)
+    response = await get(client, provider, url, params, headers)
     try:
         return response.json()
     except ValueError as error:

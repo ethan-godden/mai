@@ -40,6 +40,10 @@ temperature = 0.2
 # Providers queried by default. Run "mai search --help" for the full list.
 providers = ["searxng"]
 searxng_url = "http://localhost:8888"   # see docs/guide/search.md
+wikipedia_language = "en"
+# Optional free key for the semantic_scholar provider. Prefer the environment
+# variable MAI_SEARCH__SEMANTIC_SCHOLAR_API_KEY so the key never lands in a file.
+# semantic_scholar_api_key = ""
 max_results = 10
 timeout_s = 20
 

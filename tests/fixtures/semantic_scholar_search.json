@@ -1,0 +1,36 @@
+{
+  "total": 2,
+  "offset": 0,
+  "data": [
+    {
+      "paperId": "0000000000000000000000000000000000000001",
+      "externalIds": {"ArXiv": "2005.11401", "DOI": "10.48550/arXiv.2005.11401"},
+      "url": "https://www.semanticscholar.org/paper/0000000000000000000000000000000000000001",
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "abstract": "Large pre-trained language models have been shown to store factual knowledge in their parameters.",
+      "year": 2020,
+      "publicationDate": "2020-05-22",
+      "openAccessPdf": {"url": "https://arxiv.org/pdf/2005.11401", "status": "GREEN"}
+    },
+    {
+      "paperId": "0000000000000000000000000000000000000002",
+      "externalIds": {"DOI": "10.1000/example.doi"},
+      "url": "https://www.semanticscholar.org/paper/0000000000000000000000000000000000000002",
+      "title": "A Paper With Only a DOI",
+      "abstract": null,
+      "year": 2023,
+      "publicationDate": null,
+      "openAccessPdf": null
+    },
+    {
+      "paperId": "0000000000000000000000000000000000000003",
+      "externalIds": {},
+      "url": "https://www.semanticscholar.org/paper/0000000000000000000000000000000000000003",
+      "title": "A Paper With No External Identifier",
+      "abstract": "Short abstract.",
+      "year": null,
+      "publicationDate": null,
+      "openAccessPdf": null
+    }
+  ]
+}

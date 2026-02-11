@@ -1,4 +1,6 @@
+import asyncio
 import json
+import time
 from datetime import date
 from pathlib import Path
 
@@ -16,8 +18,11 @@ from mai.search import (
     merge_results,
     search_all,
 )
+from mai.search.arxiv import ArxivProvider, build_query
 from mai.search.base import parse_date
 from mai.search.searxng import SearxngProvider
+from mai.search.semantic_scholar import SemanticScholarProvider
+from mai.search.wikipedia import WikipediaProvider
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -189,3 +194,112 @@ def test_cli_search_reports_unknown_provider_and_unreachable_server(monkeypatch)
 
 def test_fixture_is_valid_json():
     assert json.loads(fixture("searxng_search.json"))["results"]
+
+
+def serving(body: str, seen: list[httpx.Request] | None = None):
+    def handler(request: httpx.Request) -> httpx.Response:
+        if seen is not None:
+            seen.append(request)
+        return httpx.Response(200, text=body)
+
+    return handler
+
+
+async def test_wikipedia_parses_a_recorded_response():
+    seen: list[httpx.Request] = []
+    async with client_for(serving(fixture("wikipedia_search.json"), seen)) as client:
+        results = await WikipediaProvider(client).search("retrieval-augmented generation")
+
+    assert seen[0].url.host == "en.wikipedia.org"
+    assert seen[0].url.params["srsearch"] == "retrieval-augmented generation"
+    top = results[0]
+    assert top.title == "Retrieval-augmented generation"
+    assert top.url == "https://en.wikipedia.org/wiki/Retrieval-augmented_generation"
+    assert top.snippet.startswith("Retrieval-augmented generation (RAG) is a technique")
+    assert "<" not in top.snippet  # highlight markup removed
+    assert top.published is None
+
+
+async def test_wikipedia_escapes_titles_and_uses_configured_language():
+    payload = {"query": {"search": [{"title": "C++ (langage) é?", "snippet": "a &amp; b"}]}}
+    seen: list[httpx.Request] = []
+    async with client_for(serving(json.dumps(payload), seen)) as client:
+        results = await WikipediaProvider(client, "fr").search("q")
+    assert seen[0].url.host == "fr.wikipedia.org"
+    assert results[0].url == "https://fr.wikipedia.org/wiki/C%2B%2B_(langage)_%C3%A9%3F"
+    assert results[0].snippet == "a & b"
+
+
+def test_arxiv_query_requires_every_meaningful_word():
+    assert build_query("What is retrieval-augmented generation?") == (
+        "all:retrieval-augmented AND all:generation"
+    )
+    assert build_query("to be or not to be") == "all:not"
+    assert build_query("the of") == "all:the AND all:of"  # nothing left: keep the words
+
+
+async def test_arxiv_parses_a_recorded_response():
+    seen: list[httpx.Request] = []
+    async with client_for(serving(fixture("arxiv_search.xml"), seen)) as client:
+        results = await ArxivProvider(client, min_interval_s=0).search(
+            "retrieval augmented", max_results=2
+        )
+
+    assert seen[0].url.params["search_query"] == "all:retrieval AND all:augmented"
+    assert seen[0].url.params["max_results"] == "2"
+    assert len(results) == 2
+    top = results[0]
+    assert top.url == "https://arxiv.org/abs/2506.06962"  # https, version removed
+    assert top.title == "AR-RAG: Autoregressive Retrieval Augmentation for Image Generation"
+    assert top.snippet.startswith("We introduce Autoregressive Retrieval Augmentation")
+    assert "\n" not in top.snippet
+    assert top.published == date(2025, 6, 8)
+
+
+async def test_arxiv_spaces_out_requests_and_rejects_bad_xml():
+    async with client_for(serving(fixture("arxiv_search.xml"))) as client:
+        provider = ArxivProvider(client, min_interval_s=0.05)
+        started = time.monotonic()
+        await asyncio.gather(provider.search("a b"), provider.search("c d"))
+        assert time.monotonic() - started >= 0.05
+
+    async with client_for(serving("<feed><unclosed>")) as client:
+        with pytest.raises(SearchError, match="not valid XML"):
+            await ArxivProvider(client, min_interval_s=0).search("q")
+
+
+async def test_semantic_scholar_parses_the_documented_response_shape():
+    """The fixture is hand-written from the API documentation, not recorded:
+    every unauthenticated request made while building this returned HTTP 429."""
+    seen: list[httpx.Request] = []
+    async with client_for(serving(fixture("semantic_scholar_search.json"), seen)) as client:
+        results = await SemanticScholarProvider(client, api_key="k").search("rag", max_results=5)
+
+    assert seen[0].headers["x-api-key"] == "k"
+    assert seen[0].url.params["limit"] == "5"
+    assert [r.url for r in results] == [
+        "https://arxiv.org/abs/2005.11401",
+        "https://doi.org/10.1000/example.doi",
+        "https://www.semanticscholar.org/paper/0000000000000000000000000000000000000003",
+    ]
+    assert [r.published for r in results] == [date(2020, 5, 22), date(2023, 1, 1), None]
+    assert results[1].snippet == ""
+
+
+async def test_semantic_scholar_sends_no_key_header_by_default_and_reports_rate_limits():
+    seen: list[httpx.Request] = []
+    async with client_for(serving('{"data": null}', seen)) as client:
+        assert await SemanticScholarProvider(client).search("q") == []
+    assert "x-api-key" not in seen[0].headers
+
+    async with client_for(lambda request: httpx.Response(429)) as client:
+        with pytest.raises(SearchError, match="rate limited"):
+            await SemanticScholarProvider(client).search("q")
+
+
+async def test_the_same_paper_from_two_providers_merges():
+    async with client_for(serving(fixture("semantic_scholar_search.json"))) as client:
+        scholar = await SemanticScholarProvider(client).search("q")
+    arxiv = [result("http://arxiv.org/abs/2005.11401", "arxiv")]
+    merged = merge_results([arxiv, scholar], 10)
+    assert merged[0].providers == ("arxiv", "semantic_scholar")

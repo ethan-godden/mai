@@ -92,6 +92,9 @@ class SearchSettings(_Section):
     providers: list[str] = Field(default_factory=lambda: ["searxng"])
     """Providers queried by default, by name."""
     searxng_url: str = "http://localhost:8888"
+    wikipedia_language: str = "en"
+    semantic_scholar_api_key: str = ""
+    """Optional. Keep it out of git: set MAI_SEARCH__SEMANTIC_SCHOLAR_API_KEY instead."""
     max_results: int = 10
     timeout_s: float = 20.0
 

@@ -10,6 +10,14 @@ Mai queries one or more *providers* and merges their results.
 | Name | Covers | Needs |
 |---|---|---|
 | `searxng` | The general web, through public search engines | A local SearXNG instance (below) |
+| `wikipedia` | Encyclopedia articles | Nothing |
+| `arxiv` | Preprints in physics, maths, computer science and related fields | Nothing. Requests are spaced 3 seconds apart, as arXiv asks |
+| `semantic_scholar` | Published papers across all fields | Works without a key but is usually rate-limited; see below |
+
+Only `searxng` is on by default. The specialist providers are opt-in, per
+command with `-p` or permanently in `config.toml`, because paper and
+encyclopedia results are noise for many everyday questions. From milestone M5
+the research planner will choose providers per question.
 
 Providers enabled by default are set in `config.toml`:
 
@@ -71,10 +79,29 @@ To choose which engines are used, edit `settings.yml` (see the
 [SearXNG settings reference](https://docs.searxng.org/admin/settings/)) and
 restart.
 
+## Semantic Scholar key
+
+Without a key, Semantic Scholar requests share one rate limit with every other
+anonymous user and are usually refused (every unauthenticated request made
+while building this provider returned HTTP 429). A free key from
+<https://www.semanticscholar.org/product/api> gives a dedicated limit. Supply
+it through the environment so it never lands in a file:
+
+```bash
+export MAI_SEARCH__SEMANTIC_SCHOLAR_API_KEY=your-key
+```
+
+This provider has been tested only against the documented response format,
+not against the live service.
+
 ## Searching from the command line
 
 ```bash
 uv run mai search "heat pump efficiency in cold climates"
+```
+
+```bash
+uv run mai search "retrieval augmented generation" -p arxiv -p wikipedia
 ```
 
 | Option | Meaning |
@@ -103,7 +130,9 @@ standard error.
 ## Privacy
 
 Your query text is sent to the public search engines SearXNG forwards it to,
-from your IP address. Nothing is sent to any LLM service. SearXNG itself keeps
+from your IP address. The specialist providers, when used, receive the
+query directly (Wikipedia, arXiv, Semantic Scholar). Requests identify
+themselves only as `Mai/0.1 (local research agent)`. Nothing is sent to any LLM service. SearXNG itself keeps
 no search history.
 
 ## Troubleshooting
@@ -112,6 +141,7 @@ no search history.
 |---|---|
 | `searxng failed: not reachable` | It is not running. `scripts/searxng.sh run`. |
 | `JSON output is disabled` | `json` is missing from `search.formats` in `settings.yml`. |
+| `semantic_scholar failed: rate limited` | No API key; see above. |
 | `no results; engines failed: ...` | Upstream engines are blocking or rate-limiting. Wait a few minutes, run `scripts/searxng.sh update`, or enable other engines in `settings.yml`. |
 | Port 8888 already in use | Set `MAI_SEARXNG_PORT` before `setup`, and the same port in `searxng_url`. |
 | Startup log shows `can't register engine` errors | Harmless: some optional engines need extra software. |

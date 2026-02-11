@@ -7,6 +7,7 @@ from collections.abc import Callable, Sequence
 import httpx
 
 from mai.config import SearchSettings
+from mai.search.arxiv import ArxivProvider
 from mai.search.base import (
     USER_AGENT,
     SearchError,
@@ -18,6 +19,8 @@ from mai.search.base import (
     search_all,
 )
 from mai.search.searxng import SearxngProvider
+from mai.search.semantic_scholar import SemanticScholarProvider
+from mai.search.wikipedia import WikipediaProvider
 
 __all__ = [
     "PROVIDERS",
@@ -36,6 +39,11 @@ ProviderFactory = Callable[[httpx.AsyncClient, SearchSettings], SearchProvider]
 
 PROVIDERS: dict[str, ProviderFactory] = {
     "searxng": lambda client, settings: SearxngProvider(client, settings.searxng_url),
+    "wikipedia": lambda client, settings: WikipediaProvider(client, settings.wikipedia_language),
+    "arxiv": lambda client, settings: ArxivProvider(client),
+    "semantic_scholar": lambda client, settings: SemanticScholarProvider(
+        client, settings.semantic_scholar_api_key
+    ),
 }
 """Every provider Mai knows, by the name used in config and on the command line."""
 
