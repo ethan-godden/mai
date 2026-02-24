@@ -99,6 +99,24 @@ class SearchSettings(_Section):
     timeout_s: float = 20.0
 
 
+class FetchSettings(_Section):
+    """Page fetching. See docs/guide/search.md."""
+
+    user_agent: str = "Mai/0.1 (local research agent)"
+    concurrency: int = 8
+    """Pages downloaded at once, across all hosts."""
+    per_host_interval_s: float = 1.0
+    """Minimum gap between two requests to the same host."""
+    timeout_s: float = 20.0
+    max_bytes: int = 20_000_000
+    cache_ttl_hours: float = 24.0
+    """How long a cached page is reused. 0 disables the cache."""
+    respect_robots: bool = True
+    allow_private_addresses: bool = False
+    """Allow localhost and private-network URLs. Off by default because the URLs
+    Mai fetches come from untrusted search results."""
+
+
 class PathSettings(_Section):
     """Where runtime data lives. Both directories are git-ignored."""
 
@@ -111,6 +129,7 @@ class Settings(BaseSettings):
 
     llm: LLMSettings = Field(default_factory=LLMSettings)
     search: SearchSettings = Field(default_factory=SearchSettings)
+    fetch: FetchSettings = Field(default_factory=FetchSettings)
     paths: PathSettings = Field(default_factory=PathSettings)
     source: Path | None = Field(default=None, exclude=True)
     """The config file these settings were loaded from, if any."""

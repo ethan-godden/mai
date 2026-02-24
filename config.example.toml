@@ -47,6 +47,16 @@ wikipedia_language = "en"
 max_results = 10
 timeout_s = 20
 
+[fetch]
+user_agent = "Mai/0.1 (local research agent)"
+concurrency = 8                  # pages downloaded at once
+per_host_interval_s = 1.0        # minimum gap between requests to one host
+timeout_s = 20
+max_bytes = 20000000             # larger pages are skipped
+cache_ttl_hours = 24             # 0 disables the page cache (data/cache/pages)
+respect_robots = true
+allow_private_addresses = false  # true lets Mai fetch localhost / LAN URLs
+
 [paths]
 data_dir = "data"      # caches and indexes
 runs_dir = "runs"      # one directory per research run
