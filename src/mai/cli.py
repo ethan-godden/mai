@@ -14,7 +14,10 @@ from rich.table import Table
 from mai import __version__
 from mai.config import Settings, Tier, load_settings
 from mai.doctor import run_checks
+from mai.extract import Document, ExtractError
+from mai.fetch import Fetcher, FetchError
 from mai.llm import Completion, LLMError, OpenAICompatClient
+from mai.read import read_url
 from mai.search import PROVIDERS, SearchOutcome, build_providers, http_client, search_all
 
 app = typer.Typer(
@@ -164,3 +167,49 @@ def search(
     if not outcome.results:
         err_console.print("[red]No results.[/red]")
         raise typer.Exit(code=1)
+
+
+@app.command()
+def fetch(
+    url: Annotated[str, typer.Argument(help="The page or PDF to read.")],
+    max_chars: Annotated[
+        int | None, typer.Option("--max-chars", help="Print at most this much of the text.")
+    ] = None,
+    as_json: Annotated[bool, typer.Option("--json", help="Print the document as JSON.")] = False,
+    config: ConfigOption = None,
+) -> None:
+    """Fetch a page and print its main content as Markdown."""
+    settings = _load(config)
+
+    async def run() -> Document:
+        cache_dir = settings.paths.data_dir / "cache" / "pages"
+        async with Fetcher(settings.fetch, cache_dir) as fetcher:
+            return await read_url(fetcher, url)
+
+    try:
+        document = asyncio.run(run())
+    except (FetchError, ExtractError) as error:
+        err_console.print(f"[red]Could not read page:[/red] {escape(str(error))}")
+        raise typer.Exit(code=1) from error
+
+    text = document.text if max_chars is None else document.text[:max_chars]
+    if as_json:
+        fields = {
+            "url": document.url,
+            "title": document.title,
+            "author": document.author,
+            "published": document.published.isoformat() if document.published else None,
+            "site": document.site,
+            "content_type": document.content_type,
+            "word_count": document.word_count,
+            "text": text,
+        }
+        typer.echo(json.dumps(fields, indent=2, ensure_ascii=False))
+        return
+    details = [document.site, document.author, str(document.published or "")]
+    details.append(f"{document.word_count} words")
+    err_console.print(f"[bold]{escape(document.title)}[/bold]")
+    err_console.print(document.url, style="blue", highlight=False, soft_wrap=True)
+    err_console.print(f"[dim]{escape(' · '.join(d for d in details if d))}[/dim]\n")
+    # Only the document text goes to standard output, so it can be piped to a file.
+    typer.echo(text)
