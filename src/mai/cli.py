@@ -18,6 +18,7 @@ from mai.extract import Document, ExtractError
 from mai.fetch import Fetcher, FetchError
 from mai.llm import Completion, LLMError, OpenAICompatClient
 from mai.read import read_url
+from mai.render import make_renderer
 from mai.search import PROVIDERS, SearchOutcome, build_providers, http_client, search_all
 
 app = typer.Typer(
@@ -183,8 +184,13 @@ def fetch(
 
     async def run() -> Document:
         cache_dir = settings.paths.data_dir / "cache" / "pages"
-        async with Fetcher(settings.fetch, cache_dir) as fetcher:
-            return await read_url(fetcher, url)
+        renderer = make_renderer(settings.fetch)
+        try:
+            async with Fetcher(settings.fetch, cache_dir) as fetcher:
+                return await read_url(fetcher, url, renderer)
+        finally:
+            if renderer is not None:
+                await renderer.aclose()
 
     try:
         document = asyncio.run(run())

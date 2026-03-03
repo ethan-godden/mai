@@ -171,6 +171,10 @@ class Fetcher:
 
         return list(await asyncio.gather(*(one(url) for url in urls)))
 
+    def remember(self, page: FetchedPage) -> None:
+        """Cache a page obtained another way (a browser render), under its requested URL."""
+        self._write_cache(page)
+
     # --- network ---------------------------------------------------------------
 
     async def _check_request(self, request: httpx.Request) -> None:

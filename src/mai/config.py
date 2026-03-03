@@ -112,6 +112,8 @@ class FetchSettings(_Section):
     cache_ttl_hours: float = 24.0
     """How long a cached page is reused. 0 disables the cache."""
     respect_robots: bool = True
+    browser_fallback: bool = True
+    """Render JavaScript-only pages in a headless browser, when one is installed."""
     allow_private_addresses: bool = False
     """Allow localhost and private-network URLs. Off by default because the URLs
     Mai fetches come from untrusted search results."""

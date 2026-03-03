@@ -16,6 +16,7 @@ from typing import Literal, get_args
 import httpx
 
 from mai.config import Settings, Tier
+from mai.render import playwright_installed
 
 Status = Literal["ok", "warn", "fail"]
 
@@ -180,6 +181,21 @@ async def _search_checks(
     return [Check("Search: SearXNG", "ok", url)]
 
 
+def _browser_check(settings: Settings) -> list[Check]:
+    if not settings.fetch.browser_fallback:
+        return []
+    if playwright_installed():
+        return [Check("Browser fallback", "ok", "Playwright installed")]
+    return [
+        Check(
+            "Browser fallback",
+            "warn",
+            "not installed (optional); JavaScript-only pages will be skipped",
+            "uv sync --extra browser && uv run playwright install --only-shell chromium",
+        )
+    ]
+
+
 async def run_checks(
     settings: Settings, *, transport: httpx.AsyncBaseTransport | None = None
 ) -> list[Check]:
@@ -190,4 +206,5 @@ async def run_checks(
         *_path_checks(settings),
         *await _backend_checks(settings, transport),
         *await _search_checks(settings, transport),
+        *_browser_check(settings),
     ]

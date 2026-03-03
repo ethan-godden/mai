@@ -55,6 +55,7 @@ timeout_s = 20
 max_bytes = 20000000             # larger pages are skipped
 cache_ttl_hours = 24             # 0 disables the page cache (data/cache/pages)
 respect_robots = true
+browser_fallback = true          # render JavaScript-only pages; needs the browser extra
 allow_private_addresses = false  # true lets Mai fetch localhost / LAN URLs
 
 [paths]
