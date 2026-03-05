@@ -90,7 +90,8 @@ uv run mai doctor
 ```
 
 `doctor` checks the machine, the config file, the data directories, that the
-server is reachable and that each configured model is actually installed. It
+model server is reachable, that each configured model is actually installed,
+that the search service is up, and whether the browser fallback is available. It
 exits non-zero and says how to fix anything that fails.
 
 ```bash
@@ -100,7 +101,44 @@ uv run mai ask "What is retrieval-augmented generation?"
 Until milestone M3, `mai ask` is a plain model answer with no web search and
 no citations.
 
-## 6. Other servers
+## 6. Search service
+
+Web search needs a local SearXNG instance. Set it up once, then leave it
+running in its own terminal tab:
+
+```bash
+scripts/searxng.sh setup
+```
+
+```bash
+scripts/searxng.sh run
+```
+
+```bash
+uv run mai search "heat pump efficiency in cold climates"
+```
+
+Details, options and troubleshooting: [search.md](search.md).
+
+## 7. Browser fallback (optional)
+
+To read pages that only show their content after running JavaScript:
+
+```bash
+uv sync --extra browser
+```
+
+```bash
+uv run playwright install --only-shell chromium
+```
+
+```bash
+uv run mai fetch https://en.wikipedia.org/wiki/Retrieval-augmented_generation
+```
+
+Details: [reading.md](reading.md).
+
+## 8. Other model servers
 
 Any OpenAI-compatible server works by changing `base_url`:
 
@@ -113,7 +151,7 @@ Any OpenAI-compatible server works by changing `base_url`:
 A tier can use a different server from the others by giving it its own
 `base_url`.
 
-## 7. Development checks
+## 9. Development checks
 
 ```bash
 uv run pytest
@@ -133,4 +171,5 @@ Tests run offline with no model server. See [WORKFLOW.md](../WORKFLOW.md).
 | `Model: ... not found` | The name in `config.toml` does not match `ollama list`. Names include the tag after the colon. |
 | `No model configured for the 'main' tier` | No `config.toml`, or `model` is empty. See step 4. |
 | First answer is slow | The model is being loaded into memory. Later calls are fast until Ollama unloads it after a few idle minutes. |
+| `Search: SearXNG ... unreachable` | The search service is not running. `scripts/searxng.sh run`. |
 | `Invalid configuration` | A key in `config.toml` is misspelt; unknown keys are rejected on purpose. |

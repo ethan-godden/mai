@@ -111,7 +111,7 @@ uv run mai search "retrieval augmented generation" -p arxiv -p wikipedia
 | `--json` | Machine-readable output |
 
 `mai search` lists results only. It does not read the pages; that is
-`mai fetch`.
+`mai fetch`, described in [reading.md](reading.md).
 
 ## How results are merged
 

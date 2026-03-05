@@ -1,7 +1,7 @@
 # 0003: Self-hosted SearXNG behind a provider interface
 
 Date: 2026-11-23
-Status: Accepted
+Status: Accepted. See Outcome for what changed in implementation.
 
 ## Context
 
@@ -46,3 +46,26 @@ installed on the target machine.
 
 - [SimpleXNG on PyPI](https://pypi.org/project/simplexng/)
 - [SearXNG step-by-step installation](https://docs.searxng.org/admin/installation-searxng.html)
+
+## Outcome (2026-11-23)
+
+Implemented in milestone M2 with two changes from the decision above:
+
+- **SearXNG is installed from its official source, not through SimpleXNG.**
+  SimpleXNG vendors a copy of SearXNG that was last updated in August 2025.
+  SearXNG's engines break whenever the public search engines change, so a
+  copy more than a year old is a poor base. `scripts/searxng.sh` clones the
+  official repository into `data/searxng/`, installs it into its own
+  virtualenv with uv, and can update it. No Docker is involved.
+- **Semantic Scholar is not usable without a key.** Every unauthenticated
+  request made during implementation was refused with HTTP 429. The provider
+  is implemented, accepts an optional free API key, and is tested only
+  against the documented response format. OpenAlex was considered as a
+  keyless replacement and rejected: without a key its requests share a very
+  small daily budget across the whole network address.
+
+Verified on the day: a test query returned 28 results through SearXNG from
+Google and DuckDuckGo; Wikipedia and arXiv returned live results.
+
+Only `searxng` is enabled by default. Wikipedia, arXiv and Semantic Scholar
+are opt-in until the planner (M5) can choose providers per question.

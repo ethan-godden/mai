@@ -13,6 +13,7 @@ old one `Superseded by NNNN`.
 | [0003](0003-search-backend.md) | Self-hosted SearXNG behind a provider interface | Accepted |
 | [0004](0004-pipeline-over-agent-framework.md) | Fixed pipeline with structured output, no agent framework | Accepted |
 | [0005](0005-ml-components.md) | Dedicated ML models for retrieval and verification | Accepted |
+| [0006](0006-fetching-untrusted-pages.md) | Rules for fetching untrusted pages | Accepted |
 
 ## Template
 

@@ -1,9 +1,9 @@
 # Architecture
 
 Last updated: 2026-11-23. This describes the *planned* design. Sections are
-updated as each milestone lands. Built so far (M1): `mai.cli`, `mai.config`,
-`mai.llm`, `mai.doctor` and the model bake-off (`mai.bakeoff`). Everything else
-is planned.
+updated as each milestone lands. Built so far (M1, M2): `mai.cli`, `mai.config`,
+`mai.llm`, `mai.doctor`, `mai.bakeoff`, `mai.search`, `mai.fetch`,
+`mai.extract`, `mai.render` and `mai.read`. Everything else is planned.
 
 ## 1. Overview
 
@@ -57,18 +57,32 @@ Writing from notes rather than raw pages keeps the context small, makes every
 sentence traceable to a quote, and gives the verifier something precise to
 check.
 
+### Reading a source (M2, built)
+
+```
+query ─▶ providers in parallel ─▶ merge (reciprocal rank fusion) ─▶ ranked URLs
+URL ─▶ safety check ─▶ cache ─▶ robots.txt ─▶ download ─▶ extract ─▶ Document
+                                                  └─ no text? render in browser ─┘
+```
+
+A `Document` is the unit the rest of the pipeline works with: final URL,
+title, Markdown text, author, publication date and site. Details are in
+[guide/search.md](guide/search.md) and [guide/reading.md](guide/reading.md).
+
 ## 3. Components
 
 | Component | Responsibility | Main dependencies |
 |---|---|---|
-| `mai.cli` | Commands: `ask`, `doctor` (built); `research`, `search`, `fetch`, `eval` (planned) | typer, rich |
+| `mai.cli` | Commands: `ask`, `doctor`, `search`, `fetch` (built); `research`, `eval` (planned) | typer, rich |
 | `mai.config` | Typed settings from `config.toml` and environment | pydantic-settings |
 | `mai.llm` | OpenAI-compatible client, structured output with prompt fallback and repair, model tiers, accounting | httpx, pydantic |
 | `mai.doctor` | Environment checks behind `mai doctor` | httpx |
 | `mai.bakeoff` | Model comparison battery and scoring | pydantic |
-| `mai.search` | Provider interface; SearXNG, arXiv, Wikipedia, Semantic Scholar | httpx |
-| `mai.fetch` | Concurrent fetching, cache, robots, rate limits, browser fallback | httpx, playwright |
-| `mai.extract` | HTML and PDF to Markdown plus metadata | trafilatura, PDF library |
+| `mai.search` | Provider interface, URL canonicalisation and rank-fusion merging; SearXNG, arXiv, Wikipedia, Semantic Scholar | httpx |
+| `mai.fetch` | Concurrent fetching, disk cache, robots.txt, per-host pacing, private-address blocking | httpx |
+| `mai.render` | Headless-browser rendering of JavaScript-only pages (optional) | playwright |
+| `mai.read` | Fetch plus extract, with the browser fallback; what the pipeline calls | |
+| `mai.extract` | HTML and PDF to Markdown plus metadata | trafilatura, pypdfium2 |
 | `mai.retrieval` | Chunking, embeddings, hybrid search, reranking, dedup, diversity | sentence-transformers / MLX, LanceDB, scikit-learn |
 | `mai.pipeline` | Quick and deep orchestration, budgets, resumability | asyncio |
 | `mai.verify` | Claim splitting and entailment checking | transformers |
@@ -134,12 +148,12 @@ Mai/
 ├── docs/
 │   ├── PLAN.md  ARCHITECTURE.md  ML.md  MODELS.md  WORKFLOW.md
 │   ├── decisions/          ADRs
-│   └── guide/              setup, usage, search, evaluation, mcp, web-ui
+│   └── guide/              setup, search, reading, usage, evaluation, mcp, web-ui
 ├── src/mai/                packages listed in section 3
 ├── prompts/                prompt templates, versioned
 ├── tests/                  unit (offline) and integration (marked)
 ├── evals/                  question sets, metrics, results history
-└── scripts/                bake-off, maintenance
+└── scripts/                bake-off, SearXNG setup, maintenance
 ```
 
 Git-ignored at runtime: `models/`, `data/` (cache, vector store), `runs/`.
@@ -148,8 +162,9 @@ Git-ignored at runtime: `models/`, `data/` (cache, vector store), `runs/`.
 
 - **Privacy**: questions go to search engines as queries; page fetches go to
   the sites themselves. Nothing else leaves the machine. No telemetry.
-- **Politeness**: robots.txt is respected, requests are rate-limited per host
-  and identified with a generic user agent.
+- **Politeness and safety**: robots.txt is respected, requests are paced per
+  host and identified honestly, and private or local addresses are never
+  fetched ([ADR 0006](decisions/0006-fetching-untrusted-pages.md)).
 - **Untrusted content**: fetched pages are data, never instructions. Page text
   is delimited in prompts, and the pipeline's fixed structure means a page
   cannot trigger actions.

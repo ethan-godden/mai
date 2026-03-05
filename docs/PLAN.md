@@ -57,7 +57,7 @@ Each step ends with a commit. Each milestone ends with the docs listed under
 |---|---|---|
 | M0 | Planning | Done |
 | M1 | Foundations and model bake-off | Done (model choice provisional, see MODELS.md) |
-| M2 | Search, fetch and extract | Not started |
+| M2 | Search, fetch and extract | Done |
 | M3 | Quick mode end to end | Not started |
 | M4 | ML retrieval layer | Not started |
 | M5 | Deep mode | Not started |
@@ -117,7 +117,16 @@ Exit criteria: `mai search "..."` lists results; `mai fetch <url>` prints
 clean Markdown with metadata; all covered by offline tests using recorded
 fixtures.
 
-Docs: ARCHITECTURE.md (search/fetch), `docs/guide/search.md`.
+Outcome: all exit criteria met on 2026-11-23. Differences from the plan:
+SearXNG is installed from its official source rather than SimpleXNG
+([ADR 0003](decisions/0003-search-backend.md)); Semantic Scholar could not be
+verified live without an API key and its test fixture is hand-written from
+the documented format; the fetching safety rules were recorded as
+[ADR 0006](decisions/0006-fetching-untrusted-pages.md). The browser fallback
+is verified by hand against a local test page, not by an automated test.
+
+Docs: ARCHITECTURE.md (search/fetch), `docs/guide/search.md`,
+`docs/guide/reading.md`.
 
 ### M3: Quick mode end to end
 
