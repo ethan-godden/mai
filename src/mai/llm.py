@@ -100,6 +100,14 @@ class StructuredResult[T: BaseModel]:
     """True if the server enforced the schema; False if only the prompt asked for it."""
 
 
+@dataclass(frozen=True)
+class CallRecord:
+    """One model call as sent and answered, for a run's trace."""
+
+    messages: list[Message]
+    completion: Completion
+
+
 @dataclass
 class TierUsage:
     calls: int = 0
@@ -192,6 +200,8 @@ class OpenAICompatClient:
             transport=transport, timeout=httpx.Timeout(settings.timeout_s, connect=10.0)
         )
         self.usage = UsageLedger()
+        self.on_call: Callable[[CallRecord], None] | None = None
+        """Called after every successful model call; set it to record a trace."""
         self._unconstrained: set[tuple[str, str]] = set()
         """Backends (endpoint, model) found not to support schema-constrained output."""
 
@@ -328,6 +338,8 @@ class OpenAICompatClient:
                 attempt += 1
             else:
                 self.usage.record(completion)
+                if self.on_call is not None:
+                    self.on_call(CallRecord(messages=list(messages), completion=completion))
                 return completion
 
     async def _stream(

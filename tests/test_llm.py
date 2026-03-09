@@ -243,3 +243,16 @@ def test_ask_without_a_configured_model_explains_itself():
     result = CliRunner().invoke(app, ["ask", "hello"])
     assert result.exit_code == 2
     assert "No model configured" in result.output
+
+
+async def test_on_call_receives_each_successful_call():
+    server = Server(httpx.Response(503, text="busy"), ok("hi"))
+    llm, _ = client(server)
+    records = []
+    llm.on_call = records.append
+
+    await llm.complete("main", [{"role": "user", "content": "q"}])
+
+    assert len(records) == 1  # the failed attempt is not recorded
+    assert records[0].messages == [{"role": "user", "content": "q"}]
+    assert records[0].completion.text == "hi"

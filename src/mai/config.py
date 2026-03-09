@@ -119,6 +119,23 @@ class FetchSettings(_Section):
     Mai fetches come from untrusted search results."""
 
 
+class QuickSettings(_Section):
+    """Quick mode: one search pass and a short cited answer. See docs/guide/usage.md."""
+
+    results_per_query: int = 8
+    max_sources: int = 8
+    """Pages read per question."""
+    read_budget_s: float = 20.0
+    """Pages still loading after this long are left out, so one slow site
+    cannot hold up the answer."""
+    max_passages: int = 10
+    """Passages handed to the model."""
+    passages_per_source: int = 3
+    passage_words: int = 220
+    answer_tier: Tier = "fast"
+    answer_max_tokens: int = 1200
+
+
 class PathSettings(_Section):
     """Where runtime data lives. Both directories are git-ignored."""
 
@@ -132,6 +149,7 @@ class Settings(BaseSettings):
     llm: LLMSettings = Field(default_factory=LLMSettings)
     search: SearchSettings = Field(default_factory=SearchSettings)
     fetch: FetchSettings = Field(default_factory=FetchSettings)
+    quick: QuickSettings = Field(default_factory=QuickSettings)
     paths: PathSettings = Field(default_factory=PathSettings)
     source: Path | None = Field(default=None, exclude=True)
     """The config file these settings were loaded from, if any."""
