@@ -17,6 +17,7 @@ from mai.doctor import run_checks
 from mai.extract import Document, ExtractError
 from mai.fetch import Fetcher, FetchError
 from mai.llm import Completion, LLMError, OpenAICompatClient
+from mai.quick import QuickResult, quick_answer
 from mai.read import read_url
 from mai.render import make_renderer
 from mai.search import PROVIDERS, SearchOutcome, build_providers, http_client, search_all
@@ -85,17 +86,8 @@ def doctor(config: ConfigOption = None) -> None:
     console.print("[green]Ready.[/green]")
 
 
-@app.command()
-def ask(
-    question: Annotated[str, typer.Argument(help="The question to answer.")],
-    tier: Annotated[Tier, typer.Option(help="Model tier to use.")] = "main",
-    config: ConfigOption = None,
-) -> None:
-    """Answer a question with a local model.
-
-    Until milestone M3 this is a plain completion: no web search, no citations.
-    """
-    settings = _load(config)
+def _ask_plain(settings: Settings, question: str, tier: Tier) -> None:
+    """Answer from the model alone: no search, no citations."""
 
     async def run() -> Completion:
         async with OpenAICompatClient(settings.llm) as llm:
@@ -105,20 +97,116 @@ def ask(
                     {"role": "system", "content": ASK_SYSTEM_PROMPT},
                     {"role": "user", "content": question},
                 ],
-                on_text=lambda text: console.print(text, end="", markup=False, highlight=False),
+                on_text=_stream,
             )
 
-    try:
-        completion = asyncio.run(run())
-    except LLMError as error:
-        err_console.print(f"[red]Model call failed:[/red] {escape(str(error))}")
-        raise typer.Exit(code=2) from error
-
+    completion = asyncio.run(run())
     speed = f"{completion.tokens_per_s:.0f} tok/s" if completion.tokens_per_s else "speed n/a"
     console.print(
         f"\n[dim]{escape(completion.model)} · {completion.completion_tokens or '?'} tokens · "
-        f"{completion.duration_s:.1f}s · {speed}[/dim]"
+        f"{completion.duration_s:.1f}s · {speed} · no search, no citations[/dim]"
     )
+
+
+def _stream(text: str) -> None:
+    console.print(text, end="", markup=False, highlight=False)
+
+
+def _status(message: str) -> None:
+    err_console.print(f"[dim]{escape(message)}[/dim]", highlight=False, soft_wrap=True)
+
+
+async def _run_quick(settings: Settings, question: str, provider: list[str] | None) -> QuickResult:
+    renderer = make_renderer(settings.fetch)
+    try:
+        async with (
+            OpenAICompatClient(settings.llm) as llm,
+            http_client(settings.search) as client,
+            Fetcher(settings.fetch, settings.paths.data_dir / "cache" / "pages") as fetcher,
+        ):
+            return await quick_answer(
+                question,
+                llm=llm,
+                providers=build_providers(client, settings.search, provider),
+                fetcher=fetcher,
+                settings=settings.quick,
+                renderer=renderer,
+                on_status=_status,
+                on_text=_stream,
+            )
+    finally:
+        if renderer is not None:
+            await renderer.aclose()
+
+
+def _print_quick_result(result: QuickResult) -> None:
+    for name, message in result.search_errors.items():
+        err_console.print(f"[yellow]{escape(name)} failed:[/yellow] {escape(message)}")
+    if result.status == "no_sources":
+        console.print(result.answer)
+        return
+
+    console.print("\n\n[bold]Sources[/bold]")
+    for source in result.cited_sources() or result.sources:
+        details = [str(part) for part in (source.site, source.published) if part]
+        if source.snippet_only:
+            details.append("search summary only, page not read")
+        suffix = f" [dim]({escape(', '.join(details))})[/dim]" if details else ""
+        console.print(f"[{source.number}] {escape(source.title)}{suffix}", highlight=False)
+        console.print(f"    {escape(source.url)}", style="blue", highlight=False, soft_wrap=True)
+
+    if result.invalid_citations:
+        numbers = ", ".join(f"[{n}]" for n in result.invalid_citations)
+        err_console.print(
+            f"[yellow]Warning:[/yellow] the answer cites {numbers}, which match no source."
+        )
+    if not result.cited:
+        err_console.print("[yellow]Warning:[/yellow] the answer contains no citations.")
+    stages = " · ".join(f"{stage} {seconds:.1f}s" for stage, seconds in result.timings.items())
+    total = sum(result.timings.values())
+    model = result.completion.model if result.completion else "?"
+    console.print(f"\n[dim]{total:.1f}s total ({stages}) · {escape(model)}[/dim]", highlight=False)
+
+
+@app.command()
+def ask(
+    question: Annotated[str, typer.Argument(help="The question to answer.")],
+    provider: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--provider",
+            "-p",
+            help=f"Search provider to use; repeatable. Available: {', '.join(sorted(PROVIDERS))}.",
+        ),
+    ] = None,
+    no_search: Annotated[
+        bool,
+        typer.Option("--no-search", help="Answer from the model alone, without sources."),
+    ] = False,
+    tier: Annotated[Tier, typer.Option(help="Model tier for --no-search.")] = "main",
+    config: ConfigOption = None,
+) -> None:
+    """Answer a question from the web, with numbered citations.
+
+    Searches, reads the most relevant pages, and writes a short answer in which
+    each claim cites its source.
+    """
+    settings = _load(config)
+    try:
+        if no_search:
+            _ask_plain(settings, question, tier)
+            return
+        result = asyncio.run(_run_quick(settings, question, provider))
+    except LLMError as error:
+        err_console.print(f"[red]Model call failed:[/red] {escape(str(error))}")
+        raise typer.Exit(code=2) from error
+    except ValueError as error:  # unknown provider name
+        err_console.print(f"[red]{escape(str(error))}[/red]")
+        raise typer.Exit(code=2) from error
+
+    _print_quick_result(result)
+    if result.status == "no_sources":
+        raise typer.Exit(code=1)
 
 
 @app.command()

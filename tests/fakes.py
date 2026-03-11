@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 from pydantic import BaseModel
@@ -27,7 +27,7 @@ class FakeLLM:
 
     def __init__(
         self,
-        structured: dict[type[BaseModel], Any] | None = None,
+        structured: Mapping[Any, Any] | None = None,
         answer: str | Callable[[Sequence[Message]], str] = "",
     ) -> None:
         self._structured = structured or {}
