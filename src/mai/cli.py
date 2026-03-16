@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Annotated
 
@@ -16,10 +17,11 @@ from mai.config import Settings, Tier, load_settings
 from mai.doctor import run_checks
 from mai.extract import Document, ExtractError
 from mai.fetch import Fetcher, FetchError
-from mai.llm import Completion, LLMError, OpenAICompatClient
+from mai.llm import CallRecord, Completion, LLMError, OpenAICompatClient
 from mai.quick import QuickResult, quick_answer
 from mai.read import read_url
 from mai.render import make_renderer
+from mai.runs import save_run
 from mai.search import PROVIDERS, SearchOutcome, build_providers, http_client, search_all
 
 app = typer.Typer(
@@ -116,7 +118,11 @@ def _status(message: str) -> None:
     err_console.print(f"[dim]{escape(message)}[/dim]", highlight=False, soft_wrap=True)
 
 
-async def _run_quick(settings: Settings, question: str, provider: list[str] | None) -> QuickResult:
+async def _run_quick(
+    settings: Settings, question: str, provider: list[str] | None, save: bool
+) -> tuple[QuickResult, Path | None]:
+    started = datetime.now()
+    calls: list[CallRecord] = []
     renderer = make_renderer(settings.fetch)
     try:
         async with (
@@ -124,7 +130,8 @@ async def _run_quick(settings: Settings, question: str, provider: list[str] | No
             http_client(settings.search) as client,
             Fetcher(settings.fetch, settings.paths.data_dir / "cache" / "pages") as fetcher,
         ):
-            return await quick_answer(
+            llm.on_call = calls.append
+            result = await quick_answer(
                 question,
                 llm=llm,
                 providers=build_providers(client, settings.search, provider),
@@ -137,13 +144,21 @@ async def _run_quick(settings: Settings, question: str, provider: list[str] | No
     finally:
         if renderer is not None:
             await renderer.aclose()
+    if not save:
+        return result, None
+    directory = save_run(
+        result, settings.paths.runs_dir, settings=settings, started=started, calls=calls
+    )
+    return result, directory
 
 
-def _print_quick_result(result: QuickResult) -> None:
+def _print_quick_result(result: QuickResult, saved: Path | None) -> None:
     for name, message in result.search_errors.items():
         err_console.print(f"[yellow]{escape(name)} failed:[/yellow] {escape(message)}")
     if result.status == "no_sources":
         console.print(result.answer)
+        if saved:
+            console.print(f"[dim]Saved to {escape(str(saved))}[/dim]", highlight=False)
         return
 
     console.print("\n\n[bold]Sources[/bold]")
@@ -166,6 +181,8 @@ def _print_quick_result(result: QuickResult) -> None:
     total = sum(result.timings.values())
     model = result.completion.model if result.completion else "?"
     console.print(f"\n[dim]{total:.1f}s total ({stages}) · {escape(model)}[/dim]", highlight=False)
+    if saved:
+        console.print(f"[dim]Saved to {escape(str(saved))}[/dim]", highlight=False, soft_wrap=True)
 
 
 @app.command()
@@ -184,6 +201,9 @@ def ask(
         typer.Option("--no-search", help="Answer from the model alone, without sources."),
     ] = False,
     tier: Annotated[Tier, typer.Option(help="Model tier for --no-search.")] = "main",
+    save: Annotated[
+        bool, typer.Option("--save/--no-save", help="Keep a record of the run under runs/.")
+    ] = True,
     config: ConfigOption = None,
 ) -> None:
     """Answer a question from the web, with numbered citations.
@@ -196,7 +216,7 @@ def ask(
         if no_search:
             _ask_plain(settings, question, tier)
             return
-        result = asyncio.run(_run_quick(settings, question, provider))
+        result, saved = asyncio.run(_run_quick(settings, question, provider, save))
     except LLMError as error:
         err_console.print(f"[red]Model call failed:[/red] {escape(str(error))}")
         raise typer.Exit(code=2) from error
@@ -204,7 +224,7 @@ def ask(
         err_console.print(f"[red]{escape(str(error))}[/red]")
         raise typer.Exit(code=2) from error
 
-    _print_quick_result(result)
+    _print_quick_result(result, saved)
     if result.status == "no_sources":
         raise typer.Exit(code=1)
 
