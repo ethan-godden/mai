@@ -58,6 +58,16 @@ respect_robots = true
 browser_fallback = true          # render JavaScript-only pages; needs the browser extra
 allow_private_addresses = false  # true lets Mai fetch localhost / LAN URLs
 
+[quick]                          # mai ask; see docs/guide/usage.md
+results_per_query = 8            # search results kept per query
+max_sources = 8                  # pages read per question
+read_budget_s = 20               # pages still loading after this are left out
+max_passages = 10                # passages given to the model
+passages_per_source = 3
+passage_words = 220
+answer_tier = "fast"             # "main" lets the model think first (slower)
+answer_max_tokens = 1200
+
 [paths]
 data_dir = "data"      # caches and indexes
 runs_dir = "runs"      # one directory per research run

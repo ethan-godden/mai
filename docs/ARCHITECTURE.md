@@ -1,9 +1,10 @@
 # Architecture
 
 Last updated: 2026-11-23. This describes the *planned* design. Sections are
-updated as each milestone lands. Built so far (M1, M2): `mai.cli`, `mai.config`,
+updated as each milestone lands. Built so far (M1 to M3): `mai.cli`, `mai.config`,
 `mai.llm`, `mai.doctor`, `mai.bakeoff`, `mai.search`, `mai.fetch`,
-`mai.extract`, `mai.render` and `mai.read`. Everything else is planned.
+`mai.extract`, `mai.render`, `mai.read`, `mai.rewrite`, `mai.passages`,
+`mai.quick`, `mai.runs` and `mai.prompts`. Everything else is planned.
 
 ## 1. Overview
 
@@ -31,13 +32,23 @@ ML models.
 
 ## 2. Pipelines
 
-### Quick mode (M3)
+### Quick mode (M3, built)
 
 1. **Rewrite**: fast model turns the question into 2 to 4 search queries.
 2. **Search**: queries run in parallel across providers; results are merged.
 3. **Fetch**: top results are downloaded and extracted to Markdown.
-4. **Retrieve**: best passages are selected (BM25 in M3, full ML stack in M4).
-5. **Answer**: main model writes a short answer with numbered citations.
+4. **Retrieve**: pages are split into passages and the best are selected
+   (BM25 keyword ranking now, the full ML stack in M4), with a cap per
+   source.
+5. **Answer**: the model writes a short answer from those passages only, with
+   numbered citations. The fast tier is used, because thinking doubled the
+   time.
+6. **Check and record**: citation numbers are validated and the run is saved.
+
+Reading is bounded by a time budget, so one slow site cannot hold up the
+answer. A page that could not be read contributes its search snippet,
+labelled as such. With no readable source the model is not called at all.
+See [guide/usage.md](guide/usage.md).
 
 ### Deep mode (M5, M6)
 
@@ -74,6 +85,10 @@ title, Markdown text, author, publication date and site. Details are in
 | Component | Responsibility | Main dependencies |
 |---|---|---|
 | `mai.cli` | Commands: `ask`, `doctor`, `search`, `fetch` (built); `research`, `eval` (planned) | typer, rich |
+| `mai.prompts` | Prompt templates as Markdown files | |
+| `mai.rewrite` | Question to search queries | |
+| `mai.passages` | Chunking and passage selection | rank-bm25 |
+| `mai.quick` | Quick-mode orchestration | asyncio |
 | `mai.config` | Typed settings from `config.toml` and environment | pydantic-settings |
 | `mai.llm` | OpenAI-compatible client, structured output with prompt fallback and repair, model tiers, accounting | httpx, pydantic |
 | `mai.doctor` | Environment checks behind `mai doctor` | httpx |
@@ -84,10 +99,10 @@ title, Markdown text, author, publication date and site. Details are in
 | `mai.read` | Fetch plus extract, with the browser fallback; what the pipeline calls | |
 | `mai.extract` | HTML and PDF to Markdown plus metadata | trafilatura, pypdfium2 |
 | `mai.retrieval` | Chunking, embeddings, hybrid search, reranking, dedup, diversity | sentence-transformers / MLX, LanceDB, scikit-learn |
-| `mai.pipeline` | Quick and deep orchestration, budgets, resumability | asyncio |
+| `mai.deep` | Deep-mode orchestration, budgets, resumability (planned) | asyncio |
 | `mai.verify` | Claim splitting and entailment checking | transformers |
 | `mai.report` | Rendering, citations, export | jinja2 |
-| `mai.runs` | Run records and trace storage | sqlite / JSON files |
+| `mai.runs` | Run records: report, run data and model-call trace as plain files | |
 | `mai.eval` | Evaluation set, metrics, DSPy optimisation | dspy |
 | `mai.mcp` | MCP server exposing research tools | mcp SDK |
 | `mai.web` | Local web UI | FastAPI |
@@ -109,8 +124,8 @@ Report       run_id, markdown, sources, verification summary
 ```
 
 A run is stored as a directory, `runs/<timestamp>-<slug>/`, containing
-`run.json`, `notes.jsonl`, `report.md` and `trace.jsonl` (every model call
-with prompt, output, timing and token counts). Runs are plain files so they
+`run.json`, `report.md` and `trace.jsonl` (every model call with prompt,
+output, timing and token counts); deep mode will add `notes.jsonl`. Runs are plain files so they
 can be read, diffed and used as evaluation or fine-tuning data.
 
 ## 5. Models and memory
@@ -149,8 +164,7 @@ Mai/
 │   ├── PLAN.md  ARCHITECTURE.md  ML.md  MODELS.md  WORKFLOW.md
 │   ├── decisions/          ADRs
 │   └── guide/              setup, search, reading, usage, evaluation, mcp, web-ui
-├── src/mai/                packages listed in section 3
-├── prompts/                prompt templates, versioned
+├── src/mai/                packages listed in section 3 (prompts in src/mai/prompts/)
 ├── tests/                  unit (offline) and integration (marked)
 ├── evals/                  question sets, metrics, results history
 └── scripts/                bake-off, SearXNG setup, maintenance

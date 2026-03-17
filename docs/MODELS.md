@@ -118,6 +118,23 @@ Notes on the numbers:
   answer key was fixed: question g2 wrongly rejected the bare answer "2". All
   three runs had given the correct answer.
 
+### Prompt reading speed (measured in M3)
+
+Measured on 2026-11-23 with `qwen3.8:27b` (MLX build), reasoning off, during
+real `mai ask` runs:
+
+| Prompt tokens | Time to first token | Implied reading speed |
+|---|---|---|
+| 1,577 | 9.0 s | about 175 tokens/s |
+| 2,544 | 15.3 s | about 165 tokens/s |
+| 2,990 | 17.6 s | about 170 tokens/s |
+
+Reading the prompt, not writing the answer, is the larger cost of a quick
+answer. This is the figure to watch when comparing models and backends in
+future: a model that reads several times faster would change what is
+practical, especially for deep mode's long synthesis prompts. The bake-off
+battery used short prompts and did not expose it.
+
 ## 6. Still to compare
 
 These need downloads and have not been tested. Sizes are from the Hugging

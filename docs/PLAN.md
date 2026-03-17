@@ -58,7 +58,7 @@ Each step ends with a commit. Each milestone ends with the docs listed under
 | M0 | Planning | Done |
 | M1 | Foundations and model bake-off | Done (model choice provisional, see MODELS.md) |
 | M2 | Search, fetch and extract | Done |
-| M3 | Quick mode end to end | Not started |
+| M3 | Quick mode end to end | Done |
 | M4 | ML retrieval layer | Not started |
 | M5 | Deep mode | Not started |
 | M6 | Citation verification | Not started |
@@ -139,6 +139,17 @@ Purpose: the first useful product, a Perplexity-style quick answer.
 4. Run record: save question, queries, sources and answer under `runs/`.
 
 Exit criteria: `mai ask "..."` streams a cited answer in under 60 s.
+
+Outcome: exit criterion met on 2026-11-23, with cited answers from live
+sources in 38 to 44 s on three runs with default settings. Points worth knowing for later
+milestones: the model reads its prompt at only about 170 tokens per second,
+so the answer stage is dominated by prompt length (which makes the M4
+reranker valuable: fewer, better passages); answering with thinking on took
+58 s, so quick mode answers with the fast tier; and with keyword-only
+selection the sources for one test question were all blog posts, which is the
+gap M4's source-quality signals are meant to close. Citation numbers are
+validated, but whether a cited source supports its sentence is not checked
+until M6.
 
 Docs: `docs/guide/usage.md`, ARCHITECTURE.md (quick pipeline).
 

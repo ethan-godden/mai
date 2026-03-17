@@ -98,8 +98,9 @@ exits non-zero and says how to fix anything that fails.
 uv run mai ask "What is retrieval-augmented generation?"
 ```
 
-Until milestone M3, `mai ask` is a plain model answer with no web search and
-no citations.
+`mai ask` needs the search service from step 6 as well. To test the model on
+its own first, add `--no-search`. Day-to-day use is covered in
+[usage.md](usage.md).
 
 ## 6. Search service
 
