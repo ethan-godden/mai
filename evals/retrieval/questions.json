@@ -1,0 +1,17 @@
+[
+  {"id": "q01", "question": "Is it worth replacing a gas boiler with a heat pump in a cold climate?"},
+  {"id": "q02", "question": "What do we actually know about the causes of the decline in insect populations?"},
+  {"id": "q03", "question": "How does CRISPR base editing differ from prime editing?"},
+  {"id": "q04", "question": "What is the current state of solid-state batteries for electric cars?"},
+  {"id": "q05", "question": "How does the Rust borrow checker work and why do people find it difficult?"},
+  {"id": "q06", "question": "What do pilot studies of universal basic income show?"},
+  {"id": "q07", "question": "Why did the Bronze Age civilisations of the eastern Mediterranean collapse?"},
+  {"id": "q08", "question": "How reliable are consumer sleep trackers compared with a sleep lab?"},
+  {"id": "q09", "question": "What are the long-term health effects of intermittent fasting?"},
+  {"id": "q10", "question": "How does retrieval-augmented generation reduce hallucination in language models?"},
+  {"id": "q11", "question": "What were the results of four-day work week trials?"},
+  {"id": "q12", "question": "What causes inflation and how do central banks respond to it?"},
+  {"id": "q13", "question": "How do mRNA vaccines work and how do they differ from traditional vaccines?"},
+  {"id": "q14", "question": "What are the trade-offs between SQL and NoSQL databases for a new web application?"},
+  {"id": "q15", "question": "What are the risks of microplastics to human health?"}
+]

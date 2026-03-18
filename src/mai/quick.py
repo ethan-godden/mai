@@ -121,7 +121,7 @@ def sources_footer(result: QuickResult) -> str:
     return "\n".join(lines)
 
 
-async def _search(
+async def search_queries(
     providers: Sequence[SearchProvider], queries: Sequence[str], settings: QuickSettings
 ) -> tuple[list[SearchResult], dict[str, str]]:
     outcomes = await asyncio.gather(
@@ -136,7 +136,7 @@ async def _search(
     return merged, errors
 
 
-async def _read(
+async def read_pages(
     fetcher: Fetcher, renderer: Renderer | None, urls: Sequence[str], budget_s: float
 ) -> list[Document | str]:
     """Read pages concurrently within a time budget. A string is the reason a page was not read."""
@@ -238,11 +238,11 @@ async def quick_answer(
     lap("rewrite")
 
     status("Searching: " + " | ".join(queries))
-    results, search_errors = await _search(providers, queries, settings)
+    results, search_errors = await search_queries(providers, queries, settings)
     lap("search")
 
     status(f"Reading {len(results)} pages")
-    pages = await _read(fetcher, renderer, [r.url for r in results], settings.read_budget_s)
+    pages = await read_pages(fetcher, renderer, [r.url for r in results], settings.read_budget_s)
     lap("read")
 
     sources, unread = _build_sources(results, pages, " ".join([question, *queries]), settings)

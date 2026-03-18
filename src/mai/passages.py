@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from rank_bm25 import BM25Okapi
 
@@ -100,6 +100,22 @@ def chunk_document(document: Document, source: int, *, max_words: int = 220) -> 
     return passages
 
 
+def rank_bm25(passages: Sequence[Passage], query: str) -> list[tuple[int, float]]:
+    """Rank passages by BM25 keyword relevance: (index, score) pairs, best first.
+
+    Passages sharing no words with the query are left out entirely. BM25 can
+    score a real match at or below zero when a word occurs in most passages,
+    so relevance is decided by word overlap, not by the sign of the score.
+    """
+    if not passages:
+        return []
+    query_terms = set(tokenize(query))
+    corpus = [tokenize(f"{passage.heading} {passage.text}") for passage in passages]
+    scores = BM25Okapi(corpus).get_scores(list(query_terms))
+    ranked = sorted(range(len(passages)), key=lambda index: scores[index], reverse=True)
+    return [(i, float(scores[i])) for i in ranked if query_terms.intersection(corpus[i])]
+
+
 def select_passages(
     passages: Sequence[Passage],
     query: str,
@@ -107,39 +123,19 @@ def select_passages(
     max_passages: int = 10,
     per_source: int = 3,
 ) -> list[Passage]:
-    """Return the passages most relevant to ``query``, best first.
+    """Return the passages most relevant to ``query`` by keyword match, best first.
 
     At most ``per_source`` passages come from any one document, so a single
-    long page cannot crowd out the others. Passages sharing no words with the
-    query are never returned.
+    long page cannot crowd out the others.
     """
-    if not passages:
-        return []
-    query_terms = set(tokenize(query))
-    corpus = [tokenize(f"{passage.heading} {passage.text}") for passage in passages]
-    scores = BM25Okapi(corpus).get_scores(list(query_terms))
-
-    ranked = sorted(range(len(passages)), key=lambda index: scores[index], reverse=True)
     chosen: list[Passage] = []
     taken: dict[int, int] = {}
-    for index in ranked:
+    for index, score in rank_bm25(passages, query):
         passage = passages[index]
-        # BM25 can score a match at or below zero when a word is in most passages,
-        # so relevance is decided by actual word overlap, not by the score's sign.
-        if not query_terms.intersection(corpus[index]):
-            continue
         if taken.get(passage.source, 0) >= per_source:
             continue
         taken[passage.source] = taken.get(passage.source, 0) + 1
-        chosen.append(
-            Passage(
-                passage.source,
-                passage.position,
-                passage.text,
-                passage.heading,
-                float(scores[index]),
-            )
-        )
+        chosen.append(replace(passage, score=score))
         if len(chosen) == max_passages:
             break
     return chosen
