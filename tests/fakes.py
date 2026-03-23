@@ -89,3 +89,40 @@ class StubProvider:
         if isinstance(self._results, dict):
             return self._results.get(query, [])[:max_results]
         return self._results[:max_results]
+
+
+class FakeEmbedder:
+    """Deterministic bag-of-words embedder: shared words give similar vectors.
+
+    Words in ``synonyms`` map to the same dimension, which lets tests show a
+    dense match where there is no keyword overlap.
+    """
+
+    name = "fake-embedder"
+
+    def __init__(self, synonyms: dict[str, str] | None = None, dimensions: int = 64) -> None:
+        self._synonyms = synonyms or {}
+        self._dimensions = dimensions
+        self.passage_calls: list[list[str]] = []
+
+    def _vector(self, text: str):
+        import hashlib
+        import re
+
+        import numpy as np
+
+        vector = np.zeros(self._dimensions, dtype=np.float32)
+        for raw in re.findall(r"\w+", text.lower()):
+            word = str(self._synonyms.get(raw, raw))
+            vector[int(hashlib.md5(word.encode()).hexdigest(), 16) % self._dimensions] += 1.0
+        norm = float(np.linalg.norm(vector))
+        return vector / norm if norm else vector
+
+    def embed_passages(self, texts):
+        import numpy as np
+
+        self.passage_calls.append(list(texts))
+        return np.stack([self._vector(text) for text in texts])
+
+    def embed_query(self, text):
+        return self._vector(text)
