@@ -14,7 +14,7 @@ from mai.config import load_settings
 from mai.eval.retrieval import Method
 from mai.passages import Passage, rank_bm25
 from mai.retrieval.embed import CachedEmbedder, Embedder, SentenceTransformerEmbedder
-from mai.retrieval.rank import rank_dense
+from mai.retrieval.rank import fuse, rank_dense
 
 
 def _fill(ranked: list[int], total: int) -> list[int]:
@@ -63,7 +63,24 @@ def dense(short_name: str) -> Callable[[], Method]:
     return build
 
 
+def hybrid(short_name: str) -> Callable[[], Method]:
+    """Keyword and embedding rankings combined with reciprocal rank fusion."""
+
+    def build() -> Method:
+        model = embedder(short_name)
+
+        def rank(question: str, queries: Sequence[str], passages: Sequence[Passage]) -> list[int]:
+            keyword = [index for index, _ in rank_bm25(passages, " ".join([question, *queries]))]
+            semantic, _ = rank_dense(model, passages, question)
+            return _fill(fuse([keyword, [index for index, _ in semantic]]), len(passages))
+
+        return rank
+
+    return build
+
+
 METHODS: dict[str, Callable[[], Method]] = {
     "bm25": bm25,
     **{f"dense:{name}": dense(name) for name in EMBEDDERS},
+    **{f"hybrid:{name}": hybrid(name) for name in EMBEDDERS},
 }
