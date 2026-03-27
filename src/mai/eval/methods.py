@@ -14,7 +14,8 @@ from mai.config import load_settings
 from mai.eval.retrieval import Method
 from mai.passages import Passage, rank_bm25
 from mai.retrieval.embed import CachedEmbedder, Embedder, SentenceTransformerEmbedder
-from mai.retrieval.rank import fuse, rank_dense
+from mai.retrieval.rank import fuse, passage_text, rank_dense
+from mai.retrieval.rerank import CrossEncoderReranker, Reranker
 
 
 def _fill(ranked: list[int], total: int) -> list[int]:
@@ -79,8 +80,41 @@ def hybrid(short_name: str) -> Callable[[], Method]:
     return build
 
 
+RERANKERS: dict[str, str] = {
+    "minilm": "cross-encoder/ms-marco-MiniLM-L6-v2",
+    "bge-v2-m3": "BAAI/bge-reranker-v2-m3",
+}
+FIRST_STAGE = "bge-small"
+"""The embedder used for the shortlist that rerankers reorder."""
+SHORTLIST = 40
+
+
+@cache
+def reranker(short_name: str) -> Reranker:
+    return CrossEncoderReranker(RERANKERS[short_name])
+
+
+def rerank(short_name: str) -> Callable[[], Method]:
+    """Hybrid shortlist reordered by a cross-encoder reading question and passage together."""
+
+    def build() -> Method:
+        shortlist = hybrid(FIRST_STAGE)()
+        model = reranker(short_name)
+
+        def rank(question: str, queries: Sequence[str], passages: Sequence[Passage]) -> list[int]:
+            candidates = shortlist(question, queries, passages)[:SHORTLIST]
+            scores = model.score(question, [passage_text(passages[i]) for i in candidates])
+            order = sorted(range(len(candidates)), key=lambda i: scores[i], reverse=True)
+            return _fill([candidates[i] for i in order], len(passages))
+
+        return rank
+
+    return build
+
+
 METHODS: dict[str, Callable[[], Method]] = {
     "bm25": bm25,
     **{f"dense:{name}": dense(name) for name in EMBEDDERS},
     **{f"hybrid:{name}": hybrid(name) for name in EMBEDDERS},
+    **{f"rerank:{name}": rerank(name) for name in RERANKERS},
 }
